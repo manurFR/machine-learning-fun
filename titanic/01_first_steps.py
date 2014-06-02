@@ -32,15 +32,52 @@ male_surviving_rate = 100 * float(np.sum(Y_male=='1')) / Y_male.size
 female_surviving_rate = 100 * float(np.sum(Y_female=='1')) / Y_female.size
 print "Surviving rate for men: %.2f %% and women: %.2f %%" % (male_surviving_rate, female_surviving_rate)
 
-# plot survival depending on fare
-histo = np.histogram(X[:, 6].astype(float), bins=[0,10,20,30,1000], weights=(Y=='1').astype(int))
-histo_total = np.histogram(X[:, 6].astype(float), bins=[0,10,20,30,1000]) # count of total population of each bin
-survival_rate_by_fare = 100*histo[0].astype(float)/histo_total[0]
 plt.clf()
+# plot survival depending on fare
+for (desc, data, classes) in [('Men', X_male, Y_male), ('Women', X_female, Y_female)]:
+	histo = np.histogram(data[:, 6].astype(float), bins=[0,10,20,30,1000], weights=(classes=='1').astype(int))
+	histo_total = np.histogram(data[:, 6].astype(float), bins=[0,10,20,30,1000]) # count of total population of each bin
+	survival_rate_by_fare = 100*histo[0].astype(float)/histo_total[0]
 
-plt.title("Surviving Titanic passengers by fare")
-plt.xlabel("Fare")
-plt.ylabel("Nb of survivors")
+	print "Survival rates by fare for %s :" % desc
+	print ' ; '.join(survival_rate_by_fare.astype(str).tolist())
 
-plt.bar([0, 10, 20, 30], survival_rate_by_fare)
-plt.show()
+	# plt.title("Surviving Titanic passengers by fare (%s)" % desc)
+	# plt.xlabel("Fare")
+	# plt.ylabel("Nb of survivors")
+
+	# plt.bar([0, 10, 20, 30], survival_rate_by_fare)
+	# plt.show()
+
+# survival by sex/pclass/fare bin
+print "Survival rates by sex, pclass and fare :"
+repart = {'male':   {'1': {},
+					 '2': {},
+					 '3': {}},
+		  'female': {'1': {},
+					 '2': {},
+					 '3': {}}}
+for idx, i in enumerate(X):
+	subclass = repart[i[1]][i[0]]
+	fare = float(i[6])
+	if fare < 10:
+		fare_bin = 0
+	elif fare < 20:
+		fare_bin = 10
+	elif fare < 30:
+		fare_bin = 20
+	else:
+		fare_bin = 30
+	if fare_bin not in subclass:
+		subclass[fare_bin] = {'population': 1, 'surviving': 0}
+	else:
+		subclass[fare_bin]['population'] += 1
+	if Y[idx] == '1':
+		subclass[fare_bin]['surviving'] += 1
+
+for sex in repart:
+	for pclass in repart[sex]:
+		for fare_bin in repart[sex][pclass]:
+			repart[sex][pclass][fare_bin]['survival_rate'] = 100 * float(repart[sex][pclass][fare_bin]['surviving']) \
+																	 / repart[sex][pclass][fare_bin]['population']
+			print "%s - %s - %d : %.2f %%" % (sex, pclass, fare_bin, repart[sex][pclass][fare_bin]['survival_rate'])
