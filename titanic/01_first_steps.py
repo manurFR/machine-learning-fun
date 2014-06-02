@@ -50,6 +50,17 @@ for (desc, data, classes) in [('Men', X_male, Y_male), ('Women', X_female, Y_fem
 	# plt.show()
 
 # survival by sex/pclass/fare bin
+def fare_bin(fare):
+	fare = float(fare)
+	if fare < 10:
+		return 0
+	elif fare < 20:
+		return 10
+	elif fare < 30:
+		return 20
+	else:
+		return 30
+
 print "Survival rates by sex, pclass and fare :"
 repart = {'male':   {'1': {},
 					 '2': {},
@@ -59,25 +70,41 @@ repart = {'male':   {'1': {},
 					 '3': {}}}
 for idx, i in enumerate(X):
 	subclass = repart[i[1]][i[0]]
-	fare = float(i[6])
-	if fare < 10:
-		fare_bin = 0
-	elif fare < 20:
-		fare_bin = 10
-	elif fare < 30:
-		fare_bin = 20
+	bin = fare_bin(i[6])
+	if bin not in subclass:
+		subclass[bin] = {'population': 1, 'surviving': 0}
 	else:
-		fare_bin = 30
-	if fare_bin not in subclass:
-		subclass[fare_bin] = {'population': 1, 'surviving': 0}
-	else:
-		subclass[fare_bin]['population'] += 1
+		subclass[bin]['population'] += 1
 	if Y[idx] == '1':
-		subclass[fare_bin]['surviving'] += 1
+		subclass[bin]['surviving'] += 1
 
 for sex in repart:
 	for pclass in repart[sex]:
-		for fare_bin in repart[sex][pclass]:
-			repart[sex][pclass][fare_bin]['survival_rate'] = 100 * float(repart[sex][pclass][fare_bin]['surviving']) \
-																	 / repart[sex][pclass][fare_bin]['population']
-			print "%s - %s - %d : %.2f %%" % (sex, pclass, fare_bin, repart[sex][pclass][fare_bin]['survival_rate'])
+		for bin in repart[sex][pclass]:
+			repart[sex][pclass][bin]['survival_rate'] = 100 * float(repart[sex][pclass][bin]['surviving']) \
+																	 / repart[sex][pclass][bin]['population']
+			print "%s - %s - %d : %.2f %%" % (sex, pclass, bin, repart[sex][pclass][bin]['survival_rate'])
+
+
+# Predict survival by survival_rate > 50%
+def predict(passenger):
+	return repart[passenger[1]][passenger[0]][fare_bin(passenger[6])]['survival_rate'] > 50.0
+
+def score(dataset, classes):
+	nb_good_predictions = 0.0
+	total_predictions = classes.shape[0]
+	for idx, i in enumerate(dataset):
+		prediction = predict(i)
+		if prediction == (classes[idx] == '1'):
+			nb_good_predictions += 1
+	return nb_good_predictions / total_predictions
+
+print "Score on training set : %.4f" % score(X, Y)
+
+test = []
+with open('test.csv', 'r') as f:
+	for row in csv.reader(f):
+		test.append(row)
+
+test = np.array(test[1:])
+
