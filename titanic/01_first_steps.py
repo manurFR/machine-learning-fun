@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF8 -*-
 
-import csv
+import csv, sys
 import numpy as np
 import scipy as sp
+import matplotlib.pyplot as plt
 
 
 train = []
@@ -29,4 +30,15 @@ Y_female = Y[X[:,1] == 'female']
 
 male_surviving_rate = 100 * float(np.sum(Y_male=='1')) / Y_male.size
 female_surviving_rate = 100 * float(np.sum(Y_female=='1')) / Y_female.size
-print "Surviving rate for men: %.2f%% and women: %.2f%%" % (male_surviving_rate, female_surviving_rate)
+print "Surviving rate for men: %.2f %% and women: %.2f %%" % (male_surviving_rate, female_surviving_rate)
+
+# plot survival depending on fare
+histo = np.histogram(X[:, 6].astype(float), bins=[0,10,20,30,1000], weights=(Y=='1').astype(int))
+plt.clf()
+
+plt.title("Surviving Titanic passengers by fare")
+plt.xlabel("Fare")
+plt.ylabel("Nb of survivors")
+
+plt.bar([0, 10, 20, 30], histo[0])
+plt.show()
