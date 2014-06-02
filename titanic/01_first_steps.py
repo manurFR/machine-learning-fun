@@ -87,14 +87,18 @@ for sex in repart:
 
 
 # Predict survival by survival_rate > 50%
-def predict(passenger):
-	return repart[passenger[1]][passenger[0]][fare_bin(passenger[6])]['survival_rate'] > 50.0
+def predict(sex, pclass, fare):
+	bin = fare_bin(fare)
+	if bin in repart[sex][pclass]:
+		return repart[sex][pclass][bin]['survival_rate'] > 50.0
+	else:
+		return False
 
 def score(dataset, classes):
 	nb_good_predictions = 0.0
 	total_predictions = classes.shape[0]
 	for idx, i in enumerate(dataset):
-		prediction = predict(i)
+		prediction = predict(i[1], i[0], i[6])
 		if prediction == (classes[idx] == '1'):
 			nb_good_predictions += 1
 	return nb_good_predictions / total_predictions
@@ -108,3 +112,7 @@ with open('test.csv', 'r') as f:
 
 test = np.array(test[1:])
 
+with open('01_submission.csv', 'w') as f:
+	f.write("PassengerId,Survived\n")
+	for passenger in test:
+		f.write(passenger[0] + "," + str(int(predict(passenger[3], passenger[1], passenger[8] or 0.0))) + "\n")
