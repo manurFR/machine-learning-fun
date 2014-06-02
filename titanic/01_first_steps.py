@@ -34,11 +34,13 @@ print "Surviving rate for men: %.2f %% and women: %.2f %%" % (male_surviving_rat
 
 # plot survival depending on fare
 histo = np.histogram(X[:, 6].astype(float), bins=[0,10,20,30,1000], weights=(Y=='1').astype(int))
+histo_total = np.histogram(X[:, 6].astype(float), bins=[0,10,20,30,1000]) # count of total population of each bin
+survival_rate_by_fare = 100*histo[0].astype(float)/histo_total[0]
 plt.clf()
 
 plt.title("Surviving Titanic passengers by fare")
 plt.xlabel("Fare")
 plt.ylabel("Nb of survivors")
 
-plt.bar([0, 10, 20, 30], histo[0])
+plt.bar([0, 10, 20, 30], survival_rate_by_fare)
 plt.show()
