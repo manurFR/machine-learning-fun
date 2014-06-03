@@ -5,7 +5,7 @@ import csv, sys
 import numpy as np
 import scipy as sp
 import pandas as pan
-import sklearn.linear_model
+import sklearn.linear_model, sklearn.preprocessing
 from sklearn.cross_validation import KFold
 
 def prepareFeatures(dataframe, median_ages=None):
@@ -49,21 +49,31 @@ X = X_pan.values
 Y = Y.values
 
 # Logistic Regression
-cv = KFold(n=len(X), n_folds=8, indices=True)
+best_score = 0.0
+best_C = -1.0
 
-scores = []
-for train, test in cv:
-	X_train, y_train = X[train], Y[train]
-	X_test, y_test = X[test], Y[test]
+for C in [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0]:
+	cv = KFold(n=len(X), n_folds=8, indices=True)
 
-	lr = sklearn.linear_model.LogisticRegression()
-	lr.fit(X_train,y_train)
+	scores = []
+	for train, test in cv:
+		X_train, y_train = X[train], Y[train]
+		X_test, y_test = X[test], Y[test]
 
-	scores.append(lr.score(X_test, y_test))
+		lr = sklearn.linear_model.LogisticRegression(C=C)
+		lr.fit(X_train,y_train)
 
-print "Score on training set (with cross-validation) : %.4f" % np.mean(scores)
+		scores.append(lr.score(X_test, y_test))
 
-lr = sklearn.linear_model.LogisticRegression()
+	print "Score on training set (with cross-validation) for C=%f : %.4f" % (C, np.mean(scores))
+
+	if np.mean(scores) > best_score:
+		best_score = np.mean(scores)
+		best_C = C
+
+print "Best C =", best_C
+
+lr = sklearn.linear_model.LogisticRegression(C = best_C)
 lr.fit(X,Y)
 
 print "intercept:", lr.intercept_
