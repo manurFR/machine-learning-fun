@@ -6,6 +6,7 @@ import numpy as np
 import scipy as sp
 import pandas as pan
 import sklearn.linear_model
+from sklearn.cross_validation import KFold
 
 def prepareFeatures(dataframe, median_ages=None):
 	X = dataframe[['Pclass', 'Fare', 'Age']]
@@ -48,10 +49,22 @@ X = X_pan.values
 Y = Y.values
 
 # Logistic Regression
+cv = KFold(n=len(X), n_folds=8, indices=True)
+
+scores = []
+for train, test in cv:
+	X_train, y_train = X[train], Y[train]
+	X_test, y_test = X[test], Y[test]
+
+	lr = sklearn.linear_model.LogisticRegression()
+	lr.fit(X_train,y_train)
+
+	scores.append(lr.score(X_test, y_test))
+
+print "Score on training set (with cross-validation) : %.4f" % np.mean(scores)
+
 lr = sklearn.linear_model.LogisticRegression()
 lr.fit(X,Y)
-
-print "Score on training set : %.4f" % lr.score(X, Y)
 
 print "intercept:", lr.intercept_
 print "coefs:", lr.coef_
