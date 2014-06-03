@@ -55,44 +55,46 @@ def fare_bin(fare):
 	if fare < 10:
 		return 0
 	elif fare < 20:
-		return 10
+		return 1
 	elif fare < 30:
-		return 20
+		return 2
 	else:
-		return 30
+		return 3
 
+# Pclass,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
 print "Survival rates by sex, pclass and fare :"
-repart = {'male':   {'1': {},
-					 '2': {},
-					 '3': {}},
-		  'female': {'1': {},
-					 '2': {},
-					 '3': {}}}
-for idx, i in enumerate(X):
-	subclass = repart[i[1]][i[0]]
-	bin = fare_bin(i[6])
-	if bin not in subclass:
-		subclass[bin] = {'population': 1, 'surviving': 0}
-	else:
-		subclass[bin]['population'] += 1
-	if Y[idx] == '1':
-		subclass[bin]['surviving'] += 1
+nb_bins = 4
+nb_classes = len(np.unique(X[:,0]))
+survival_table = np.zeros((2, nb_classes, nb_bins)) # 2 genders x 3 classes x 4 fare bins matrix of survival rates
 
-for sex in repart:
-	for pclass in repart[sex]:
-		for bin in repart[sex][pclass]:
-			repart[sex][pclass][bin]['survival_rate'] = 100 * float(repart[sex][pclass][bin]['surviving']) \
-																	 / repart[sex][pclass][bin]['population']
-			print "%s - %s - %d : %.2f %%" % (sex, pclass, bin, repart[sex][pclass][bin]['survival_rate'])
+# for this model, set all fares > 39 to be equal to 39, so that they all easily go to the 4th bin (which is the only important information for now)
+X_female[X_female[:,6].astype(float) > 39, 6] = 39.0
+X_male[X_male[:,6].astype(float) > 39, 6] = 39.0
 
+for i in xrange(nb_classes):
+	for j in xrange(nb_bins):
+		survival_women = Y_female[ (X_female[:,0].astype(int) == i+1) & (X_female[:,6].astype(float) >= j*10) & (X_female[:,6].astype(float) < (j+1)*10) ]
+		survival_men = Y_male[ (X_male[:,0].astype(int) == i+1) & (X_male[:,6].astype(float) >= j*10) & (X_male[:,6].astype(float) < (j+1)*10) ]
+		survival_table[0,i,j] = np.mean(survival_women.astype(float))
+		survival_table[1,i,j] = np.mean(survival_men.astype(float))
+survival_table[ survival_table != survival_table ] = 0.
+
+for i in xrange(nb_classes):
+	for j in xrange(nb_bins):
+		print "table: %s - %d - %d : %.2f %%" % ('female', i+1, j*10, survival_table[0,i,j] * 100)
+for i in xrange(nb_classes):
+	for j in xrange(nb_bins):		
+		print "table: %s - %d - %d : %.2f %%" % ('male', i+1, j*10, survival_table[1,i,j] * 100)
 
 # Predict survival by survival_rate > 50%
 def predict(sex, pclass, fare):
-	bin = fare_bin(fare)
-	if bin in repart[sex][pclass]:
-		return repart[sex][pclass][bin]['survival_rate'] > 50.0
-	else:
-		return False
+	sex_bit = 0 if sex == 'female' else 1
+	try:
+		bin = int(min(float(fare), 39)) / 10
+	except ValueError:
+		print sex, pclass, fare
+		bin = 3 - int(pclass) # if no fare, choose bin depending on pclass
+	return survival_table[sex_bit, int(pclass)-1, bin] >= 0.5
 
 def score(dataset, classes):
 	nb_good_predictions = 0.0
@@ -115,4 +117,4 @@ test = np.array(test[1:])
 with open('01_submission.csv', 'w') as f:
 	f.write("PassengerId,Survived\n")
 	for passenger in test:
-		f.write(passenger[0] + "," + str(int(predict(passenger[3], passenger[1], passenger[8] or 0.0))) + "\n")
+		f.write(passenger[0] + "," + str(int(predict(passenger[3], passenger[1], passenger[8]))) + "\n")
