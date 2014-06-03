@@ -36,7 +36,7 @@ X['AgeIsNull'] = pan.isnull(X.Age).astype(int)
 
 # Engineered features
 X['FamilySize'] = df['SibSp'] + df['Parch']
-df['Age*Class'] = df.AgeFill * df.Pclass
+X['Age*Class'] = X.AgeFill * X.Pclass
 
 # Drop useless string columns
 X = X.drop(['Sex'], axis=1)
