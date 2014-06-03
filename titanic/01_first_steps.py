@@ -92,7 +92,6 @@ def predict(sex, pclass, fare):
 	try:
 		bin = int(min(float(fare), 39)) / 10
 	except ValueError:
-		print sex, pclass, fare
 		bin = 3 - int(pclass) # if no fare, choose bin depending on pclass
 	return survival_table[sex_bit, int(pclass)-1, bin] >= 0.5
 
