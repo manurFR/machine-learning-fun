@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# -*- coding: UTF8 -*-
+
+import pandas as pan
+import numpy as np
+
+def load_train_data():
+	#PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
+	df = pan.read_csv('train.csv', header=0)
+
+	Y = df['Survived']
+
+	X = df[['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
+	X['SexBit'] = X['Sex'].map({'female': 0, 'male':1}).astype(int)
+	X['Fare'] = X['Fare'].fillna(0.0)
+	median_ages = np.zeros((2,3))
+	for i in range(2):
+		for j in range(3):
+			median_ages[i,j] = X[(X['SexBit'] == i) & (X['Pclass']-1 == j)]['Age'].dropna().median()
+
+	X['AgeFill'] = X['Age']
+	for i in range(2):
+		for j in range(3):
+			X.loc[(X.Age.isnull()) & (X.SexBit == i) & (X.Pclass-1 == j), 'AgeFill'] = median_ages[i,j]
+	X = X.drop(['Sex','Age'], axis=1)
+
+	return df, X, Y, median_ages

@@ -10,6 +10,7 @@ from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from matplotlib import pylab
+from utils import load_train_data
 
 best_score = 0.0
 best_classifier = None
@@ -38,31 +39,14 @@ def test_algo(algo, features, classes, name, options={}):
 		best_classifier = classifier
 		best_classifier_name = name
 
-#PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
-df = pan.read_csv('train.csv', header=0)
-
-Y = df['Survived']
-
-X = df[['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
-X['SexBit'] = X['Sex'].map({'female': 0, 'male':1}).astype(int)
-X['Fare'] = X['Fare'].fillna(0.0)
-median_ages = np.zeros((2,3))
-for i in range(2):
-	for j in range(3):
-		median_ages[i,j] = X[(X['SexBit'] == i) & (X['Pclass']-1 == j)]['Age'].dropna().median()
-
-X['AgeFill'] = X['Age']
-for i in range(2):
-	for j in range(3):
-		X.loc[(X.Age.isnull()) & (X.SexBit == i) & (X.Pclass-1 == j), 'AgeFill'] = median_ages[i,j]
-X = X.drop(['Sex','Age'], axis=1)
+df, X, Y, median_ages = load_train_data()
 
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree")
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with entropy criterion", {'criterion': 'entropy'})
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with all features", {'max_features': None})
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=5", {'max_depth': 5})
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with min_samples_leaf=5", {'min_samples_leaf': 5})
-# test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=10 and min_samples_leaf=10", {'max_depth': 10, 'min_samples_leaf': 10})
+
 print
 for min_samples in range(1,20):
 	test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=10 and min_samples_leaf=%d" % min_samples, {'max_depth': 10, 
@@ -78,8 +62,8 @@ print
 test_algo(RandomForestClassifier, X, Y, "Random Forest")
 test_algo(RandomForestClassifier, X, Y, "Random Forest whose trees have max_depth=10 and min_samples_leaf=8", 
 			{'max_depth': 10, 'min_samples_leaf': 8})
-# test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees", {'n_estimators': 50})
-# test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees", {'n_estimators': 100})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees", {'n_estimators': 50})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees", {'n_estimators': 100})
 test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees and the best params for trees", 
 			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
 print
@@ -107,6 +91,8 @@ title_encoder = LabelEncoder()
 X['Title'] = title_encoder.fit_transform(df['Name'].apply(lambda name: extract_title(name)))
 
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with best params and Embarked, Ticket and Title", {'max_depth': 10, 'min_samples_leaf': 8})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with best params, 100 trees, and Embarked, Ticket and Title", 
+			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
 
 print
 print '='*100
