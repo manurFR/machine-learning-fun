@@ -15,7 +15,7 @@ def prepareFeatures(dataframe, median_ages=None):
 	X['SexBit'] = df['Sex'].map({'female': 0, 'male':1}).astype(int)
 	X['PclassIdx'] = X['Pclass'].map(lambda x: int(x)-1).astype(int)
 	X['EmbarkedCode'] = df['Embarked'].map({None: 1, 'C': 0, 'S': 1, 'Q': 2}).astype(int)
-	X.loc[X['Fare'].isnull(), 'Fare'] = 0.0
+	X = X.loc[X['Fare'].isnull(), 'Fare'] = 0.0
 
 	# Replace missing ages by median value (of age) for the sex and the pclass
 	if median_ages is None:
@@ -99,8 +99,8 @@ def plot_bias_variance(data_sizes, train_errors, test_errors, title):
 
 plot_bias_variance(datasizes, train_errors, cv_errors, "Learning curve for Titanic Logistic Regression")
 # the curve shows we have high bias (we don't really fit the training set much better than the cross-validation set)
-#  ==> we need a more complex model (non-linear?)
-
+#  ==> we need a more complex model (non-linear?
+)
 lr = sklearn.linear_model.LogisticRegression(C = best_C)
 lr.fit(X,Y)
 
