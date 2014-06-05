@@ -10,7 +10,7 @@ from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from matplotlib import pylab
-from utils import load_train_data
+from utils import load_train_data, add_sex_bit, fill_fare, output_predictions, fill_median_age
 
 best_score = 0.0
 best_classifier = None
@@ -39,7 +39,8 @@ def test_algo(algo, features, classes, name, options={}):
 		best_classifier = classifier
 		best_classifier_name = name
 
-df, X, Y, median_ages = load_train_data()
+df, X, Y = load_train_data()
+X = X[['Pclass', 'SibSp', 'Parch', 'Fare', 'SexBit', 'AgeFill']]
 
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree")
 test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with entropy criterion", {'criterion': 'entropy'})
@@ -100,25 +101,5 @@ print
 
 print "Best overall: %s with %.4f" % (best_classifier_name, best_score)
 
-dfTest = pan.read_csv('test.csv', header=0)
-
-Xtest = dfTest[['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
-Xtest['SexBit'] = Xtest['Sex'].map({'female': 0, 'male':1}).astype(int)
-Xtest['Fare'] = Xtest['Fare'].fillna(0.0)
-
-Xtest['AgeFill'] = Xtest['Age']
-for i in range(2):
-	for j in range(3):
-		Xtest.loc[(Xtest.Age.isnull()) & (Xtest.SexBit == i) & (Xtest.Pclass-1 == j), 'AgeFill'] = median_ages[i,j]
-Xtest = Xtest.drop(['Sex','Age'], axis=1)
-
-# np.set_printoptions(threshold='nan')
-# print Xtest.values
-
-ids = dfTest['PassengerId'].values
-predictions = best_classifier.predict(Xtest.values)
-
-with open('04_submission.csv', 'w') as f:
-	f.write("PassengerId,Survived\n")
-	for idx, pred in enumerate(predictions):
-		f.write(str(ids[idx]) + "," + str(int(pred)) + "\n")
+output_predictions(best_classifier, '04_submission.csv', ['Pclass', 'SexBit', 'AgeFill', 'SibSp', 'Parch', 'Fare'],
+				   [add_sex_bit, fill_fare, fill_median_age])
