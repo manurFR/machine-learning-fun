@@ -38,3 +38,19 @@ def plot_bias_variance(data_sizes, train_errors, test_errors, title):
     pylab.legend(["train error", "test error"], loc="upper right")
     pylab.grid(True, linestyle='-', color='0.75')
     pylab.show()
+
+def output_predictions(classifier, output_name, format_funcs = []):
+	Xtest = pan.read_csv('test.csv', header=0)
+	
+	ids = Xtest['PassengerId'].values
+	Xtest = Xtest.drop(['PassengerId'], axis=1)
+
+	for func in format_funcs:
+		Xtest = func(Xtest)
+
+	predictions = classifier.predict(Xtest.values)
+
+	with open(output_name, 'w') as f:
+		f.write("PassengerId,Survived\n")
+		for idx, pred in enumerate(predictions):
+			f.write(str(ids[idx]) + "," + str(int(pred)) + "\n")
