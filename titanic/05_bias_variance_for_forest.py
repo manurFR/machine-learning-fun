@@ -33,7 +33,7 @@ test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Title instead of Age
 #test_algo(RandomForestClassifier, X, Y, "Decision Tree with Title instead of Age", {'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
 
 classifier = DecisionTreeClassifier(max_depth = 10, min_samples_leaf = 8)
-classifier.fit(X,Y)
+classifier.fit(X, Y)
 
 # Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
 features = ['Pclass', 'SibSp', 'Parch', 'Fare', 'SexBit', 'Title']
