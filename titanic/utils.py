@@ -44,7 +44,7 @@ def load_train_data():
 
 	Y = df['Survived']
 
-	X = df[['Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']]
+	X = df.drop(['Survived'], axis=1)
 	add_sex_bit(X)
 	fill_fare(X)
 	fill_median_age(X)
