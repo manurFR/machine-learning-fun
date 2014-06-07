@@ -138,7 +138,7 @@ Ce modèle peut ensuite être utilisé pour établir les prédictions concernant
 Soumis sur le site Kaggle.com, le score sur les données de test est de **0.56938**.
 
 |&nbsp;| Score d'apprentissage | Score de test Kaggle.com |
-|-|-|-|
+|------|-----------------------|--------------------------|
 | Modèle *ad hoc* | 0.80808 | 0.77990 |
 | Régression logistique | 0.80583 | 0.56938 |
 
