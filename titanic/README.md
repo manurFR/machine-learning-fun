@@ -43,9 +43,7 @@ A ces deux variables discriminantes (sexe et prix du billet), on ajoute la class
 #### Score
 Le score utilisé dans ce concours est l'*Accuracy*. Celle-ci peut se représenter :
 
-$$
-Accuracy = \frac{Nombre\ de\ prédictions\ correctes}{Nombre\ total\ de\ prédictions}
-$$
+Accuracy = Nombre de prédictions correctes / Nombre total de prédictions.
 
 
 
