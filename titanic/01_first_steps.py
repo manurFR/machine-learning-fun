@@ -22,6 +22,8 @@ Y = train[:, 1]
 X = train[:, (2, 4, 5, 6, 7, 8, 9, 10, 11)]
 m, n = X.shape # m: nb of training examples, n: nb of features (n should be 9)
 
+print "Global surviving rate (training set): %.2f %%" % (100 * np.mean(Y.astype(float)))
+
 # split by sex
 X_male = X[X[:,1] == 'male']
 Y_male = Y[X[:,1] == 'male']
@@ -104,7 +106,7 @@ def score(dataset, classes):
 			nb_good_predictions += 1
 	return nb_good_predictions / total_predictions
 
-print "Score on training set : %.4f" % score(X, Y)
+print "Score on training set : %.5f" % score(X, Y)
 
 test = []
 with open('test.csv', 'r') as f:

@@ -15,7 +15,7 @@ def prepareFeatures(dataframe, median_ages=None):
 	X['SexBit'] = df['Sex'].map({'female': 0, 'male':1}).astype(int)
 	X['PclassIdx'] = X['Pclass'].map(lambda x: int(x)-1).astype(int)
 	X['EmbarkedCode'] = df['Embarked'].map({None: 1, 'C': 0, 'S': 1, 'Q': 2}).astype(int)
-	X = X.loc[X['Fare'].isnull(), 'Fare'] = 0.0
+	X.loc[X['Fare'].isnull(), 'Fare'] = 0.0
 
 	# Replace missing ages by median value (of age) for the sex and the pclass
 	if median_ages is None:
@@ -49,11 +49,20 @@ X_pan, median_ages = prepareFeatures(df)
 X = X_pan.values
 Y = Y.values
 
-# Logistic Regression
-best_score = 0.0
-best_C = -1.0
+def plot_best_regularization(C_values, scores):
+    pylab.figure(num=None, figsize=(6, 5))
+    pylab.ylim([0.79, 0.81])
+    pylab.xlabel('C (regularization parameter)')
+    pylab.ylabel('Score')
+    pylab.title('Logistic Regression score for C')
+    pylab.plot(C_values, scores, "-", lw=1)
+    pylab.grid(True, linestyle='--', color='0.75')
+    pylab.savefig('charts/logreg_bestC.png')
 
-for C in [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0]:
+# Logistic Regression
+C_values = [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
+C_scores = []
+for C in C_values:
 	cv = KFold(n=len(X), n_folds=8, indices=True)
 
 	scores = []
@@ -66,13 +75,13 @@ for C in [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0]:
 
 		scores.append(lr.score(X_test, y_test))
 
+	C_scores.append(np.mean(scores))
 	print "Score on training set (with cross-validation) for C=%f : %.4f" % (C, np.mean(scores))
 
-	if np.mean(scores) > best_score:
-		best_score = np.mean(scores)
-		best_C = C
-
+best_C = C_values[np.argmax(C_scores)]
 print "Best C =", best_C
+
+plot_best_regularization(C_values, C_scores)
 
 datasizes = np.arange(50, len(X), 20)
 
@@ -95,12 +104,11 @@ def plot_bias_variance(data_sizes, train_errors, test_errors, title):
         data_sizes, test_errors, "--", data_sizes, train_errors, "b-", lw=1)
     pylab.legend(["train error", "test error"], loc="upper right")
     pylab.grid(True, linestyle='-', color='0.75')
-    pylab.show()
+    pylab.savefig('charts/logreg_bias_variance.png')
 
 plot_bias_variance(datasizes, train_errors, cv_errors, "Learning curve for Titanic Logistic Regression")
 # the curve shows we have high bias (we don't really fit the training set much better than the cross-validation set)
-#  ==> we need a more complex model (non-linear?
-)
+#  ==> we need a more complex model (non-linear?)
 lr = sklearn.linear_model.LogisticRegression(C = best_C)
 lr.fit(X,Y)
 
