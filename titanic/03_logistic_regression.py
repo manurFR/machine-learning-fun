@@ -76,7 +76,7 @@ for C in C_values:
 		scores.append(lr.score(X_test, y_test))
 
 	C_scores.append(np.mean(scores))
-	print "Score on training set (with cross-validation) for C=%f : %.4f" % (C, np.mean(scores))
+	print "Score on training set (with cross-validation) for C=%f : %.5f" % (C, np.mean(scores))
 
 best_C = C_values[np.argmax(C_scores)]
 print "Best C =", best_C
@@ -120,9 +120,11 @@ dfTest = pan.read_csv('test.csv', header=0)
 test, _ = prepareFeatures(dfTest, median_ages)
 Xtest = test.values
 
+predictions = lr.predict(Xtest)
+
 with open('03_submission.csv', 'w') as f:
 	f.write("PassengerId,Survived\n")
-	for idx, passenger in enumerate(Xtest):
-		f.write(str(dfTest.loc[idx,'PassengerId']) + "," + str(int(lr.predict(passenger))) + "\n")
+	for idx, pred in enumerate(predictions):
+		f.write(str(dfTest.loc[idx,'PassengerId']) + "," + str(int(pred)) + "\n")
 
 
