@@ -158,7 +158,7 @@ En revanche les autres poids sont négatifs, signalant une corrélation négativ
 #### Prédictions sur les données de test
 Ce modèle peut ensuite être utilisé pour établir les prédictions concernant les passagers des données de test.
 
-Soumis sur le site Kaggle.com, le score sur les données de test est de **0.56938**.
+Soumis sur le site Kaggle.com, le score sur les données de test est de **0.57895**.
 
 |&nbsp;| Score d'apprentissage | Score de test Kaggle.com |
 |------|-----------------------|--------------------------|
