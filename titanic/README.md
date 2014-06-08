@@ -130,9 +130,32 @@ Un algorithme de régression logistique est entraîné sur les données d'appren
 
 On constate que le score est à son maximum pour une valeur de *C* = **3**. Le score de cross-validation est alors de **0.80583**.
 
-#### Prédictions sur les données de test
+#### Poids des *features*
 Une fois les meilleurs paramètres définis, on calcule un modèle définitif avec ces paramètres et sur **l'ensemble** des passagers des données d'apprentissage.
 
+Scikit-learn fournit les poids p[x] des différentes features déterminées par son modèle, ainsi que le "biais" (ou ordonnée à l'origine) :
+> *Prédiction = sigmoïde( biais + p[classe] x classe + p[prix] x prix + p[sexe] x sexe + ...)*
+
+Les poids déterminés sont les suivants :
+
+| Biais | Classe | Prix   | Sexe | Embarquement | Age   | Famille à bord |
+|-------|--------|--------|------|--------------|-------|----------------|
+| 4,81  | -1,04  | 0.0035 | -2,65| -0,14        | -0,038| -0,23          |
+
+Sexe est converti en 0 pour les femmes, 1 pour les hommes.
+Le port d'embarquement est converti en 0 pour Cherbourg, 1 pour Southampton, 2 pour Queenstown (en Irlande).
+La *feature* famille à bord est la somme des *features* nombre de conjoints, frères et soeurs et nombre de parents et enfants.
+
+On constate que le **prix** est la seule caractéristique corrélée positivement : avoir payé un billet plus cher offre une chance de survie plus importante.
+En revanche les autres poids sont négatifs, illustrant une corrélation négative :
+
+* Le **sexe** est la caractéristique la plus discriminante pour la prédiction, et être un homme réduit drastiquement les chances de survie. Cela correspond bien à l'analyse préliminaire (et sera confirmé par les algorithmes ultérieurs).
+* La **classe** est un indicateur assez fort ; on note qu'une classe de valeur plus grande signifie en réalité un statut à bord moins élevé (la 1ère classe est plus confortable que la 3ème). Le modèle *ad hoc* ayant montré que les taux de survie augmentaient avec le prix et la classe, la corrélation négative est logique.
+* La présence de **famille à bord** est corrélée de façon légèrement négative avec la survie, ce qui s'explique peut-être par la plus grande difficulté à évacuer le navire pour des groupes.
+* Etonnament, le **port d'embarquement** est corrélé négativement lui aussi : embarquer en France assure plus de chances de survie qu'en Irlande...
+* L'**âge** des passager est corrélé négativement, ce qui confirme l'adage "les femmes et les enfants d'abord". Le poids est très faible mais on peut remarquer que l'âge et le prix sont les deux *features* dont l'intervalle de valeurs est beaucoup plus large que les autres. Il est donc logique que les poids leur correspondant soient plus faibles.
+
+#### Prédictions sur les données de test
 Ce modèle peut ensuite être utilisé pour établir les prédictions concernant les passagers des données de test.
 
 Soumis sur le site Kaggle.com, le score sur les données de test est de **0.56938**.
@@ -144,5 +167,22 @@ Soumis sur le site Kaggle.com, le score sur les données de test est de **0.5693
 
 On constate que la régression logistique a un score quasiment semblable à celui du modèle *ad hoc* sur les données d'apprentissage, mais beaucoup plus faible sur les données de test. On a donc clairement un type de modèle qui ne se généralise pas bien.
 Il est nécessaire de déterminer pourquoi la régression logistique n'est pas applicable au jeu de données.
+
+#### Learning curve
+Tracer la "learning curve" permet d'identifier si le modèle est approprié aux données. 
+
+* On prélève aléatoirement une portion du jeu d'apprentissage (ici 30%) comme données de "test" ;
+* On prépare le modèle avec des sous-ensembles aléatoires et de taille croissante des données restantes (ici, de 50 passagers aux 70% restants, c'est à dire 916) ;
+* Pour chacun de ces modèles on calcule l'*Erreur* (*Erreur = 1.0 - Accuracy*) sur le jeu d'apprentissage et sur les données de "test" prélevées initialement.
+
+En traçant ces deux courbes en fonction de la taille du jeu d'apprentissage effectivement utilisé, on peut constater la façon dont le modèle s'affine ou non avec plus d'informations en entrée.
+
+![Régression Logistique : learning curve](charts/logreg_bias_variance.png)
+
+Ce graphe montre que **l'augmentation de la population** du jeu d'apprentissage ne permet pas d'améliorer le taux d'erreur sur les données "de test". De plus, l'écart entre les scores sur le jeu d'apprentissage et le jeu de test est faible et constant.
+
+Ces propriétés sont caractéristiques d'un modèle présentant trop de "bias", c'est à dire **pas assez complexe** pour reproduire la réalité du phénomène que l'on cherche à produire.
+
+Effectivement, la régression logistique reste un modèle linéaire (un "simple" poids donné à chaque *feature*). La prochaine étape sera donc d'appliquer des modèles plus complexes.
 
 > Written with [StackEdit](https://stackedit.io/).
