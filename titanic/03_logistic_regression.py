@@ -33,7 +33,7 @@ def prepareFeatures(dataframe, median_ages=None):
 
 	# Engineered features
 	X['FamilySize'] = df['SibSp'] + df['Parch']
-	X['Age*Class'] = X.AgeFill * df.Pclass
+	#X['Age*Class'] = X.AgeFill * df.Pclass
 
 	# Drop useless string columns
 	X = X.drop(['PclassIdx','Age'], axis=1)
@@ -100,7 +100,7 @@ for datasize in np.arange(50, len(X_train), 20):
 def plot_bias_variance(data_sizes, train_errors, test_errors, title):
     pylab.figure(num=None, figsize=(6, 5))
     pylab.ylim([0.0, 1.0])
-    pylab.xlabel('Data set size')
+    pylab.xlabel('Training set size')
     pylab.ylabel('Error')
     pylab.title(title)
     pylab.plot(
@@ -110,7 +110,8 @@ def plot_bias_variance(data_sizes, train_errors, test_errors, title):
     pylab.savefig('charts/logreg_bias_variance.png')
 
 plot_bias_variance(np.arange(50, len(X_train), 20), train_errors, cv_errors, "Learning curve for Titanic Logistic Regression")
-# the curve shows we have high bias (we don't really fit the training set much better than the cross-validation set)
+# the curve shows we have high bias (we don't really fit the training set much better than the cross-validation set, and more
+#	training examples doesn't improve the test Error)
 #  ==> we need a more complex model (non-linear?)
 lr = sklearn.linear_model.LogisticRegression(C = best_C)
 lr.fit(X,Y)
