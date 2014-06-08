@@ -128,7 +128,7 @@ Un algorithme de régression logistique est entraîné sur les données d'appren
 
 ![Régression Logistique : score en fonction de *C*](charts/logreg_bestC.png)
 
-On constate que le score est à son maximum pour une valeur de *C* = **3**. Le score de cross-validation est alors de **0.80583**.
+On constate que le score est à son maximum pour une valeur de *C* = **3**. Le score de cross-validation est alors de **0.80472**.
 
 #### Poids des *features*
 Une fois les meilleurs paramètres définis, on calcule un modèle définitif avec ces paramètres et sur **l'ensemble** des passagers des données d'apprentissage.
@@ -147,7 +147,7 @@ Le port d'embarquement est converti en 0 pour Cherbourg, 1 pour Southampton, 2 p
 La *feature* famille à bord est la somme des *features* nombre de conjoints, frères et soeurs et nombre de parents et enfants.
 
 On constate que le **prix** est la seule caractéristique corrélée positivement : avoir payé un billet plus cher offre une chance de survie plus importante.
-En revanche les autres poids sont négatifs, illustrant une corrélation négative :
+En revanche les autres poids sont négatifs, signalant une corrélation négative :
 
 * Le **sexe** est la caractéristique la plus discriminante pour la prédiction, et être un homme réduit drastiquement les chances de survie. Cela correspond bien à l'analyse préliminaire (et sera confirmé par les algorithmes ultérieurs).
 * La **classe** est un indicateur assez fort ; on note qu'une classe de valeur plus grande signifie en réalité un statut à bord moins élevé (la 1ère classe est plus confortable que la 3ème). Le modèle *ad hoc* ayant montré que les taux de survie augmentaient avec le prix et la classe, la corrélation négative est logique.
@@ -163,7 +163,7 @@ Soumis sur le site Kaggle.com, le score sur les données de test est de **0.5693
 |&nbsp;| Score d'apprentissage | Score de test Kaggle.com |
 |------|-----------------------|--------------------------|
 | Modèle *ad hoc* | 0.80808 | 0.77990 |
-| Régression logistique | 0.80583 | 0.56938 |
+| Régression logistique | 0.80472 | 0.57895 |
 
 On constate que la régression logistique a un score quasiment semblable à celui du modèle *ad hoc* sur les données d'apprentissage, mais beaucoup plus faible sur les données de test. On a donc clairement un type de modèle qui ne se généralise pas bien.
 Il est nécessaire de déterminer pourquoi la régression logistique n'est pas applicable au jeu de données.
