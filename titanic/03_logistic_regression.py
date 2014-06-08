@@ -7,6 +7,7 @@ import scipy as sp
 import pandas as pan
 import sklearn.linear_model, sklearn.preprocessing
 from sklearn.cross_validation import KFold, train_test_split
+from sklearn.utils import shuffle
 from matplotlib import pylab
 
 def prepareFeatures(dataframe, median_ages=None):
@@ -87,12 +88,14 @@ datasizes = np.arange(50, len(X), 20)
 
 train_errors = []
 cv_errors = []
-for datasize in datasizes:
-	X_train, X_cv, y_train, y_cv = train_test_split(X[:datasize], Y[:datasize], test_size=0.7)
+X_train, X_cv, y_train, y_cv = train_test_split(X, Y, test_size=0.3)
+for datasize in np.arange(50, len(X_train), 20):
 	lr = sklearn.linear_model.LogisticRegression(C=best_C)
-	lr.fit(X_train,y_train)
-	train_errors.append(1 - lr.score(X_train, y_train))
+	subX, subY = shuffle(X_train, y_train, n_samples = datasize)
+	lr.fit(subX, subY)
+	train_errors.append(1 - lr.score(subX, subY))
 	cv_errors.append(1 - lr.score(X_cv, y_cv))
+
 
 def plot_bias_variance(data_sizes, train_errors, test_errors, title):
     pylab.figure(num=None, figsize=(6, 5))
@@ -102,11 +105,11 @@ def plot_bias_variance(data_sizes, train_errors, test_errors, title):
     pylab.title(title)
     pylab.plot(
         data_sizes, test_errors, "--", data_sizes, train_errors, "b-", lw=1)
-    pylab.legend(["train error", "test error"], loc="upper right")
+    pylab.legend(["test error", "train error"], loc="upper right")
     pylab.grid(True, linestyle='-', color='0.75')
     pylab.savefig('charts/logreg_bias_variance.png')
 
-plot_bias_variance(datasizes, train_errors, cv_errors, "Learning curve for Titanic Logistic Regression")
+plot_bias_variance(np.arange(50, len(X_train), 20), train_errors, cv_errors, "Learning curve for Titanic Logistic Regression")
 # the curve shows we have high bias (we don't really fit the training set much better than the cross-validation set)
 #  ==> we need a more complex model (non-linear?)
 lr = sklearn.linear_model.LogisticRegression(C = best_C)
