@@ -31,8 +31,8 @@ def test_algo(algo, features, classes, name, options={}):
 
 	score = np.mean(scores)
 	print "Score on training set (with cross-validation) for %s : %.4f" % (name, score)
-	# with open('decisiontree.dot', 'w') as f:
-	# 	f = export_graphviz(classifier, out_file = f, feature_names = X.columns.tolist())
+	with open('decisiontree.dot', 'w') as f:
+		f = export_graphviz(classifier, out_file = f, feature_names = X.columns.tolist())
 	global best_score, best_classifier, best_classifier_name
 	if score >= best_score:
 		best_score = score
@@ -42,64 +42,64 @@ def test_algo(algo, features, classes, name, options={}):
 df, X, Y = load_train_data()
 X = X[['Pclass', 'SibSp', 'Parch', 'Fare', 'SexBit', 'AgeFill']]
 
-test_algo(DecisionTreeClassifier, X, Y, "Decision Tree")
-test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with entropy criterion", {'criterion': 'entropy'})
-test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with all features", {'max_features': None})
-test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=5", {'max_depth': 5})
-test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with min_samples_leaf=5", {'min_samples_leaf': 5})
+#test_algo(DecisionTreeClassifier, X, Y, "Decision Tree")
+# test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with entropy criterion", {'criterion': 'entropy'})
+# test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with all features", {'max_features': None})
+test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=5", {'max_depth': 3})
+# test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with min_samples_leaf=5", {'min_samples_leaf': 5})
 
-print
-for min_samples in range(1,20):
-	test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=10 and min_samples_leaf=%d" % min_samples, {'max_depth': 10, 
-																													  'min_samples_leaf': min_samples})
-print
-# min_samples_leaf = 8 is the best
-for max_depth in range(1,20):
-	test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=%d and min_samples_leaf=8" % max_depth, {'max_depth': max_depth, 
-																												   'min_samples_leaf': 8})
-# max_depth = 10 seems to stay the best
-print
+# print
+# for min_samples in range(1,20):
+# 	test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=10 and min_samples_leaf=%d" % min_samples, {'max_depth': 10, 
+# 																													  'min_samples_leaf': min_samples})
+# print
+# # min_samples_leaf = 8 is the best
+# for max_depth in range(1,20):
+# 	test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with max_depth=%d and min_samples_leaf=8" % max_depth, {'max_depth': max_depth, 
+# 																												   'min_samples_leaf': 8})
+# # max_depth = 10 seems to stay the best
+# print
 
-test_algo(RandomForestClassifier, X, Y, "Random Forest")
-test_algo(RandomForestClassifier, X, Y, "Random Forest whose trees have max_depth=10 and min_samples_leaf=8", 
-			{'max_depth': 10, 'min_samples_leaf': 8})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees", {'n_estimators': 50})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees", {'n_estimators': 100})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees and the best params for trees", 
-			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
-print
+# test_algo(RandomForestClassifier, X, Y, "Random Forest")
+# test_algo(RandomForestClassifier, X, Y, "Random Forest whose trees have max_depth=10 and min_samples_leaf=8", 
+# 			{'max_depth': 10, 'min_samples_leaf': 8})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees", {'n_estimators': 50})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees", {'n_estimators': 100})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees and the best params for trees", 
+# 			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
+# print
 
-def extract_title(s):
-	if 'Mr.' in s: 
-		return 'Mr.'
-	if 'Mrs.' in s:
-		return 'Mrs.'
-	if 'Miss.' in s:
-		return 'Miss'
-	if 'Rev.' in s:
-		return 'Rev.'
-	if 'Major.' in s:
-		return 'Major.'
-	if 'Lady.' in s:
-		return 'Lady.'
-	return 'Other'
+# def extract_title(s):
+# 	if 'Mr.' in s: 
+# 		return 'Mr.'
+# 	if 'Mrs.' in s:
+# 		return 'Mrs.'
+# 	if 'Miss.' in s:
+# 		return 'Miss'
+# 	if 'Rev.' in s:
+# 		return 'Rev.'
+# 	if 'Major.' in s:
+# 		return 'Major.'
+# 	if 'Lady.' in s:
+# 		return 'Lady.'
+# 	return 'Other'
 
-embarked_encoder = LabelEncoder()
-X['Embarked'] = embarked_encoder.fit_transform(df['Embarked'])
-ticket_encoder = LabelEncoder()
-X['Ticket'] = ticket_encoder.fit_transform(df['Ticket'].str[0])
-title_encoder = LabelEncoder()
-X['Title'] = title_encoder.fit_transform(df['Name'].apply(lambda name: extract_title(name)))
+# embarked_encoder = LabelEncoder()
+# X['Embarked'] = embarked_encoder.fit_transform(df['Embarked'])
+# ticket_encoder = LabelEncoder()
+# X['Ticket'] = ticket_encoder.fit_transform(df['Ticket'].str[0])
+# title_encoder = LabelEncoder()
+# X['Title'] = title_encoder.fit_transform(df['Name'].apply(lambda name: extract_title(name)))
 
-test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with best params and Embarked, Ticket and Title", {'max_depth': 10, 'min_samples_leaf': 8})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with best params, 100 trees, and Embarked, Ticket and Title", 
-			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
+# test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with best params and Embarked, Ticket and Title", {'max_depth': 10, 'min_samples_leaf': 8})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with best params, 100 trees, and Embarked, Ticket and Title", 
+# 			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
 
-print
-print '='*100
-print
+# print
+# print '='*100
+# print
 
-print "Best overall: %s with %.4f" % (best_classifier_name, best_score)
+# print "Best overall: %s with %.4f" % (best_classifier_name, best_score)
 
-output_predictions(best_classifier, '04_submission.csv', ['Pclass', 'SexBit', 'AgeFill', 'SibSp', 'Parch', 'Fare'],
-				   [add_sex_bit, fill_fare, fill_median_age])
+# output_predictions(best_classifier, '04_submission.csv', ['Pclass', 'SexBit', 'AgeFill', 'SibSp', 'Parch', 'Fare'],
+# 				   [add_sex_bit, fill_fare, fill_median_age])
