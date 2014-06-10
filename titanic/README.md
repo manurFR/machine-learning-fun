@@ -186,6 +186,8 @@ Ces propriétés sont caractéristiques d'un modèle présentant trop de "bias",
 Effectivement, la régression logistique reste un modèle linéaire (un "simple" poids donné à chaque *feature*). La prochaine étape sera donc d'appliquer des modèles plus complexes.
 
 ### Arbres de décision
+> [04_trees_and_forests.py](04_trees_and_forests.py)
+
 Un arbre de décision est un algorithme similaire au modèle *ad hoc* décrit plus haut, mais dont la génération est automatique.
 
 Le processus consiste à déterminer quelle *feature* est la plus déterminante sur la population des données d'apprentissage, et quelle valeur de seuil sépare cette population en deux ensembles de prédiction opposée. Cette *feature* et ce seuil représentent le noeud racine de l'arbre.
@@ -194,7 +196,7 @@ Les feuilles de l'arbre contiennent chacune un sous-ensemble de la population du
 
 Pour ce problème, un arbre de décision dont on limite arbitrairement la profondeur à 3 donne ceci :
 
-![Arbre de décision simple](charts/"decision tree.png")
+![Arbre de décision simple](charts/decision tree.png)
 
 On peut noter que, par exemple, les 369 passagers du jeu d'apprentissage rassemblés dans la feuille en bas à droite n'ont pas tous péri dans le naufrage. Cependant, la majorité d'entre eux (le *mode*) étant décédés, on prédira "A survécu" = 0 ici (comme dans le modèle *ad hoc* on prédisait 0 si le taux de survie était inférieur à 50%).
 
@@ -237,11 +239,46 @@ En revanche, le score sur les données de test sur Kaggle.com n'est pas meilleur
 | Régression logistique | 0.80472 | 0.57895 |
 | Arbre de décision | 0.83285 | **0.75120** |
 
-### Learning curve de l'arbre de décision
+#### Learning curve de l'arbre de décision
 ![Arbre de décision : learning curve](charts/decision_tree_bias_variance.png)
 
 On constate que les deux courbes (erreur sur le jeu d'apprentissage de taille croissante et erreur sur les données de cross-validation) présentent un écart qui n'est pas comblé. De façon subtile, on remarque que la tendance de l'erreur sur les données d'apprentissage est d'augmenter, alors que sur les données de cross-validation la tendance est à la baisse.
 
 Ces facteurs font penser à une variance un peu trop élevée, c'est-à-dire à un peu d'*overfitting*.
+
+### Random Forest
+On teste également les "Random Forest", c'est à dire un ensemble d'arbres de décision :
+
+* Scikit-learn générera un group de n_estimators (défaut: 10) arbres différents ;
+* La prédiction du modèle pour un passager sera le mode, c'est-à-dire le résultat le plus fréquent de la prédiction pour ce passager avec chacun des arbres de la "forêt" ;
+* Chaque arbre sera généré avec une partie choisie aléatoirement (par la méthode du [Bootstrap](http://en.wikipedia.org/wiki/Bootstrapping_(statistics))) des données d'apprentissage ;
+* Par défaut, la génération des arbres se fera en considérant un nombre de *features* égal à la racine carrée du nombre disponible (*max_features = sqrt(n_features)*) ;
+* Les autres paramètres des arbres de décision peuvent également être précisés.
+
+#### Scores
+On constate que, à taille égale, les "Random Forests" créées avec les paramétres optimaux déterminés pour un arbre de décision (profondeur max. = **6**, population min. des feuilles = **6**) offrent une meilleure *Accuracy* :
+
+| Nombre d'arbres | Paramétres d'arbre par défaut | Prof. max = **6** & Pop. min. = **6** |
+|-----------------|-------------------------------|---------------------------------------|
+| 10 (défaut)     | 0.81263                       | 0.81715                               |
+| 50              | 0.81720                       | 0.82497                               |
+| 100             | 0.81831                       | 0.82612                               |
+
+De plus, augmenter le nombre d'arbres semble améliorer le score.
+
+#### Score sur les données de test
+On tente donc de générer un modèle avec 500 arbres :
+
+|&nbsp;                      | Score d'apprentissage | Score de test Kaggle.com |
+|----------------------------|-----------------------|--------------------------|
+| Modèle *ad hoc*            | 0.80808 | 0.77990 |
+| Régression logistique      | 0.80472 | 0.57895 |
+| Arbre de décision          | 0.83285 | 0.75120 |
+| Random Forest (500 arbres) | **0.83171** | **0.79426** |
+
+On constate que le score sur les données d'apprentissage de ce modèle est légèrement inférieur à celui d'un arbre de décision seul, mais que le score sur les données de test sur Kaggle.com est **le meilleur** des modèles définis jusqu'ici !
+
+Il est donc probable que cette "forêt" présente moins d'*overfitting* aux données d'apprentissage qu'un arbre seul, et qu'elle présente plus de subtilité que le modèle *ad hoc*, qui ne définissait que 24 catégories de passagers.
+
 
 > Written with [StackEdit](https://stackedit.io/).
