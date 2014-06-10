@@ -56,22 +56,35 @@ for min_samples in range(1,21):
 			(max_depth, min_samples), {'max_depth': max_depth, 'min_samples_leaf': min_samples})
 print
 
-test_algo(RandomForestClassifier, X, Y, "Random Forest")
-test_algo(RandomForestClassifier, X, Y, "Random Forest whose trees have max_depth=10 and min_samples_leaf=8", 
-			{'max_depth': 10, 'min_samples_leaf': 8})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees", {'n_estimators': 50})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees", {'n_estimators': 100})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees and the best params for trees", 
-			{'n_estimators': 100, 'max_depth': 10, 'min_samples_leaf': 8})
-print
-
-
-print '='*100
-print
 
 classifier, algo, options, name = best_classifier
 print "Best overall: %s with %.5f" % (name, best_score)
 
 output_predictions(classifier, '04_submission.csv', formatting_functions, features)
-
 plot_learning_curve(name, algo, options, X, Y, min_size=50, n_steps=50)
+
+print '='*100
+print
+
+# Random forests
+
+best_score = 0.0
+best_classifier = ()
+
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 10 trees")
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees", {'n_estimators': 50})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees", {'n_estimators': 100})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 10 trees, max_depth=6 and min_samples_leaf=6", 
+			{'max_depth': 6, 'min_samples_leaf': 6})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees, max_depth=6 and min_samples_leaf=6", 
+			{'n_estimators': 50, 'max_depth': 6, 'min_samples_leaf': 6})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees, max_depth=6 and min_samples_leaf=6", 
+			{'n_estimators': 100, 'max_depth': 6, 'min_samples_leaf': 6})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 500 trees, max_depth=6 and min_samples_leaf=6", 
+			{'n_estimators': 500, 'max_depth': 6, 'min_samples_leaf': 6})
+print
+
+classifier, algo, options, name = best_classifier
+print "Best overall Random Forest: %s with %.5f" % (name, best_score)
+
+output_predictions(classifier, '04_submission_rf.csv', formatting_functions, features)
