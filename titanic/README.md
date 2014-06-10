@@ -185,4 +185,63 @@ Ces propriétés sont caractéristiques d'un modèle présentant trop de "bias",
 
 Effectivement, la régression logistique reste un modèle linéaire (un "simple" poids donné à chaque *feature*). La prochaine étape sera donc d'appliquer des modèles plus complexes.
 
+### Arbres de décision
+Un arbre de décision est un algorithme similaire au modèle *ad hoc* décrit plus haut, mais dont la génération est automatique.
+
+Le processus consiste à déterminer quelle *feature* est la plus déterminante sur la population des données d'apprentissage, et quelle valeur de seuil sépare cette population en deux ensembles de prédiction opposée. Cette *feature* et ce seuil représentent le noeud racine de l'arbre.
+Puis, on itère sur chaque fils, c'est à dire sur chaque sous-ensemble de la population, pour déterminer à nouveau la *feature* la plus discriminante et la valeur de seuil la plus appropriée.
+Les feuilles de l'arbre contiennent chacune un sous-ensemble de la population du jeu d'apprentissage, et en prenant le *mode* (la valeur la plus fréquente) de la classe évaluée (ici, le passager a-t-il survécu ?), on obtient la valeur à prédire pour un passager des données de test.
+
+Pour ce problème, un arbre de décision dont on limite arbitrairement la profondeur à 3 donne ceci :
+
+![Arbre de décision simple](charts/"decision tree.png")
+
+On peut noter que, par exemple, les 369 passagers du jeu d'apprentissage rassemblés dans la feuille en bas à droite n'ont pas tous péri dans le naufrage. Cependant, la majorité d'entre eux (le *mode*) étant décédés, on prédira "A survécu" = 0 ici (comme dans le modèle *ad hoc* on prédisait 0 si le taux de survie était inférieur à 50%).
+
+#### Exploration des paramètres de l'arbre de décision
+Avec les paramètres par défaut proposés par scikit-learn, l'arbre de décision produit une *Accuracy* de **0.79363** (score obtenu avec la cross-validation en K-Fold habituelle).
+
+Ce score est plus faible que celui du modèle *ad hoc* (pour rappel : 0.80808). Cependant, par rapport à ce dernier, l'arbre de décision offre des paramètres de génération que nous allons étudier pour tenter d'améliorer le score.
+
+Par défaut les paramètres sont :
+
+* Métrique de décision : Gini
+* *Features* évaluées pour trouver la plus déterminante : toutes
+* Profondeur maximale de l'arbre : illimitée
+* Population minimale d'une feuille : 1
+
+On change un paramètre à la fois pour voir lesquels ont un impact positif sur le score :
+
+|&nbsp;| Score |
+|----------------------------------|-------|
+| Valeurs par défaut               |**0,79363**|
+| Métrique: Entropie d'information |0,78578|
+| *Features* évaluées : sqrt(*nb features*) * |0,78573|
+| Profondeur max. : 5              |0,81820|
+| Population min. des feuilles: 5  |0,81385|
+
+> \* "sqrt(nb *features*)" signifie qu'on ne considère qu'un nombre de *features* égal à la racine carrée du nombre total pour déterminer la plus discriminante.
+
+Changer les deux premiers paramètres semble avoir un impact négatif sur le score, on conservera donc leur valeur par défaut.
+Les deux derniers paramètres, en revanche, semblent améliorer l'*Accuracy* du modèle. 
+
+On calcule la matrice des scores obtenus en faisant varier ces deux dimensions : profondeur maximale de 1 à 20, et population minimale des feuilles de 1 à 20.
+Le meilleur score de cross-validation obtenu est de **0.83285** pour profondeur max. = **6** et population min. des feuilles = **6**.
+
+#### Score sur les données de test
+En revanche, le score sur les données de test sur Kaggle.com n'est pas meilleur que le modèle *ad hoc* :
+
+|&nbsp;| Score d'apprentissage | Score de test Kaggle.com |
+|------|-----------------------|--------------------------|
+| Modèle *ad hoc* | 0.80808 | 0.77990 |
+| Régression logistique | 0.80472 | 0.57895 |
+| Arbre de décision | 0.83285 | **0.75120** |
+
+### Learning curve de l'arbre de décision
+![Arbre de décision : learning curve](charts/decision_tree_bias_variance.png)
+
+On constate que les deux courbes (erreur sur le jeu d'apprentissage de taille croissante et erreur sur les données de cross-validation) présentent un écart qui n'est pas comblé. De façon subtile, on remarque que la tendance de l'erreur sur les données d'apprentissage est d'augmenter, alors que sur les données de cross-validation la tendance est à la baisse.
+
+Ces facteurs font penser à une variance un peu trop élevée, c'est-à-dire à un peu d'*overfitting*.
+
 > Written with [StackEdit](https://stackedit.io/).
