@@ -38,7 +38,7 @@ def test_algo(algo, data, classes, name, options={}):
 	global best_score, best_classifier, best_classifier_name
 	if score >= best_score:
 		best_score = score
-		best_classifier = (classifier, algo, options, name)
+		best_classifier = (algo, options, name)
 
 df, X, Y = load_train_data(formatting_functions)
 X = X[features]
@@ -57,8 +57,12 @@ for min_samples in range(1,21):
 print
 
 
-classifier, algo, options, name = best_classifier
+algo, options, name = best_classifier
 print "Best overall: %s with %.5f" % (name, best_score)
+
+# re-train best algo with whole training set
+classifier = algo(**options)
+classifier.fit(X, Y)
 
 output_predictions(classifier, '04_submission.csv', formatting_functions, features)
 plot_learning_curve(name, algo, options, X, Y, min_size=50, n_steps=50)
@@ -80,11 +84,13 @@ test_algo(RandomForestClassifier, X, Y, "Random Forest with 50 trees, max_depth=
 			{'n_estimators': 50, 'max_depth': 6, 'min_samples_leaf': 6})
 test_algo(RandomForestClassifier, X, Y, "Random Forest with 100 trees, max_depth=6 and min_samples_leaf=6", 
 			{'n_estimators': 100, 'max_depth': 6, 'min_samples_leaf': 6})
-test_algo(RandomForestClassifier, X, Y, "Random Forest with 500 trees, max_depth=6 and min_samples_leaf=6", 
-			{'n_estimators': 500, 'max_depth': 6, 'min_samples_leaf': 6})
+test_algo(RandomForestClassifier, X, Y, "Random Forest with 200 trees, max_depth=6 and min_samples_leaf=6", 
+			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6})
 print
 
-classifier, algo, options, name = best_classifier
+algo, options, name = best_classifier
 print "Best overall Random Forest: %s with %.5f" % (name, best_score)
 
+classifier = algo(**options)
+classifier.fit(X, Y)
 output_predictions(classifier, '04_submission_rf.csv', formatting_functions, features)
