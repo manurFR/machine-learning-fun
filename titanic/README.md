@@ -269,18 +269,43 @@ On constate que, à taille égale, les "Random Forests" créées avec les param�
 De plus, augmenter le nombre d'arbres semble améliorer le score.
 
 #### Score sur les données de test
-On tente donc de générer un modèle avec 500 arbres :
+On tente donc de générer un modèle avec 200 arbres :
 
 |&nbsp;                      | Score d'apprentissage | Score de test Kaggle.com |
 |----------------------------|-----------------------|--------------------------|
 | Modèle *ad hoc*            | 0.80808 | 0.77990 |
 | Régression logistique      | 0.80472 | 0.57895 |
 | Arbre de décision          | 0.83285 | 0.78469 |
-| Random Forest (500 arbres) | **0.82836** | **0.78947** |
+| Random Forest (200 arbres) | **0.82836** | **0.78947** |
 
 On constate que le score sur les données d'apprentissage de ce modèle est légèrement inférieur à celui d'un arbre de décision seul, mais que le score sur les données de test sur Kaggle.com est **le meilleur** des modèles définis jusqu'ici.
 
 Il est donc probable que cette "forêt" présente moins d'*overfitting* aux données d'apprentissage qu'un arbre seul, et qu'elle présente plus de subtilité que le modèle *ad hoc*, qui ne définissait que 24 catégories de passagers.
+
+### Factorisation de code
+> [utils.py](utils.py)
+
+A l'issue de l'exploration sur les arbres de décision et les "random forests", il devient clair que certains enchaînements de code sont répétés fréquemment. Afin d'améliorer la qualité de l'implémentation, je prends la décision de les factoriser dans un fichier [utils.py](utils.py).
+
+Pour que cette initiative soit véritablement utile, il est nécessaire également de généraliser le code extrait en fonctions utilisables pour différents algorithmes et différents datasets.
+
+J'ai créé les fonctions :
+
+* *load_train_data(format_funcs = [ ])*
+* *test_algo(algo, X, Y, name, options={})* (pour le test en cross-validation d'un algorithme quelconque avec des options/paramètres quelconques)
+* *plot_learning_curve(name, algo, options, X, Y, min_size=50, n_steps=50, test_size=0.3)*
+    * qui appelle *plot_bias_variance(datasizes, train_errors, test_errors, title)*
+* *output_predictions(classifier, output_name, format_funcs = [], features=[])*
+
+De plus, on constate que les mêmes étapes de pré-traitement des données doivent être effectuées sur les jeu d'apprentissage puis de test, tout en rendant paramétrable la liste précise des pré-traitements.
+Ces pré-traitements seront injectés dans les deux fonctions *load_train_data()* et *output_predictions()* par l'argument *format_funcs*.
+
+Les pré-traitements employés jusqu'à présents sont factorisés dans ce fichier également :
+
+* *add_sex_bit(X)* pour transformer le sexe 'female'/'male' en *feature* numérique 0/1
+* *fill_fare(X)* pour remplacer les prix des billets non renseignés par 0
+* *fill_median_age(X)* pour remplacer les âges non renseignés par la valeur médiane des âges de passagers de même sexe et de même classe
+
 
 
 > Written with [StackEdit](https://stackedit.io/).
