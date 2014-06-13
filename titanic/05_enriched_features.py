@@ -15,10 +15,15 @@ features1 = ['Pclass', 'SibSp', 'Parch', 'Fare', 'SexBit', 'AgeFill', 'Embarked'
 df, X, Y = load_train_data(formatting_functions1)
 X = X[features1]
 
-test_algo(RandomForestClassifier, X, Y, "Random Forest with Embarked, Deck and Title", 
-			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with Embarked, Deck and Title", 
+# 			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
 
-classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
+test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Embarked, Deck and Title", 
+			{'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
+
+
+# classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
+classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6)
 classifier.fit(X, Y)
 
 print "Importance of features:"
@@ -35,10 +40,13 @@ features2 = ['Pclass', 'SibSp', 'Parch', 'Fare', 'SexBit', 'Title']
 df, X, Y = load_train_data(formatting_functions2)
 X = X[features2]
 
-test_algo(RandomForestClassifier, X, Y, "Random Forest with Title and no Age", 
-			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with Title and no Age", 
+# 			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
+test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Title and no Age", 
+			{'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
 
-classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
+# classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
+classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6)
 classifier.fit(X, Y)
 
 print "Importance of features:"
@@ -55,10 +63,13 @@ features3 = ['Pclass', 'SibSp', 'Parch', 'LogFarePlusOne', 'SexBit', 'Title']
 df, X, Y = load_train_data(formatting_functions3)
 X = X[features3]
 
-test_algo(RandomForestClassifier, X, Y, "Random Forest with Title, Log(Fare+1) and no Age", 
-			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
+# test_algo(RandomForestClassifier, X, Y, "Random Forest with Title, Log(Fare+1) and no Age", 
+# 			{'n_estimators': 200, 'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
+test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Title, Log(Fare+1) and no Age", 
+			{'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
 
-classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
+# classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
+classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6)
 classifier.fit(X, Y)
 
 print "Importance of features:"
