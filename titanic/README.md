@@ -306,6 +306,53 @@ Les pré-traitements employés jusqu'à présents sont factorisés dans ce fichi
 * *fill_fare(X)* pour remplacer les prix des billets non renseignés par 0
 * *fill_median_age(X)* pour remplacer les âges non renseignés par la valeur médiane des âges de passagers de même sexe et de même classe
 
+### Enrichissement des features
+> [05_enriched_features.py](05_enriched_features.py)
 
+Les forums et blogs consacrés à ce dataset signalent plusieurs améliorations sur les *features* qui peuvent se traduire par une meilleure *Accuracy* de la prédiction. On les implémente ici.
+
+1. Dans un premier temps on ajoute les *features* suivantes :
+
+- Le **port d'embarquement** ;
+- Le **pont** de résidence sur le navire, que l'on peut extraire du numéro de **ticket** fourni : c'est la première lettre (on peut aisément imaginer que certains ponts aient amélioré les chances de survie de leurs occupants) ;
+- Le **titre** (Mr., Mrs., Miss., Lady., Dr., etc.) que l'on peut extraire du nom du passager, donnée que nous n'avions pas exploitée jusqu'à présent.
+
+ Les trois *features* calculées ci-dessus sont encodées en valeurs numériques, et leur usage est implémenté dans des fonctions génériques placées dans [utils.py](utils.py).
+    
+2. Une autre configuration recommandée est d'ajouter le *titre* comme ci-dessus, tout en supprimant la feature *âge*.
+3. Un troisième et dernier essai consiste à ajouter le *titre*, retirer l'*âge*, et transformer le prix du billet de la façon suivante :
+
+> *prix' = log(prix + 1)*
+*log* : logarithme en base 10
+
+Cette formule lisse le prix sur une échelle plus compacte, tout en conservant une valeur légale pour prix = 0 (*log(0)* = -infini tandis que *log(1)* = 0).
+
+#### Scores
+Les modèles sont créés avec des "random forests" de 200 arbres, max_depth=6, min_samples_leaf=6.
+
+| &nbsp;                    | Modèle 1. | Modèle 2. | Modèle 3. |
+|---------------------------|-----------|-----------|-----------|
+| Score de cross-validation | 0.83057   | 0.82382   | 0.82382   |
+| Score de test Kaggle.com  | 0.61244   | 0.48804   | 0.48804   |
+
+On constate que, bien que les scores de cross-validation soient très bon, ils deviennent médiocres sur les données de test.
+
+#### Avec de simples arbres de décision
+J'ai tenté également de lancer les algorithmes sur les mêmes modèles mais avec un simple arbre de décision à chaque fois (au lieu d'une "random forest" de 200 arbres).
+
+| &nbsp;                    | Modèle 1. | Modèle 2. | Modèle 3. |
+|---------------------------|-----------|-----------|-----------|
+| Score de cross-validation | 0.82385   | 0.83176   | 0.83176   |
+| Score de test Kaggle.com  | 0.39713   | 0.79426   | 0.79426   |
+
+On a donc à nouveau amélioré le meilleur score :
+
+|&nbsp;                      | Score d'apprentissage | Score de test Kaggle.com |
+|----------------------------|-----------------------|--------------------------|
+| Modèle *ad hoc*            | 0.80808 | 0.77990 |
+| Régression logistique      | 0.80472 | 0.57895 |
+| Arbre de décision          | 0.83285 | 0.78469 |
+| Random Forest (200 arbres) | 0.82836 | 0.78947 |
+| Arbre "Modèle 3."          | 0.83176 | **0.79426** |
 
 > Written with [StackEdit](https://stackedit.io/).
