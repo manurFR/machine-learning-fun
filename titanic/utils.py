@@ -46,6 +46,9 @@ def add_title(X, names=None):
 	title_encoder = LabelEncoder()
 	X['Title'] = title_encoder.fit_transform(names.apply(extract_title))
 
+def logarize_fare(X):
+	X['LogFarePlusOne'] = np.log10(X['Fare'] + 1)
+
 def load_train_data(format_funcs = []):
 	#PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
 	df = pan.read_csv('train.csv', header=0)
@@ -59,13 +62,13 @@ def load_train_data(format_funcs = []):
 
 	return df, X, Y
 
-def test_algo(algo, features, classes, name, options={}):
-	cv = KFold(n=len(features), n_folds=8, indices=True)
+def test_algo(algo, X, Y, name, options={}):
+	cv = KFold(n=len(X), n_folds=8, indices=True)
 
 	scores = []
 	for train, test in cv:
-		X_train, y_train = features.values[train], classes.values[train]
-		X_test, y_test = features.values[test], classes.values[test]
+		X_train, y_train = X.values[train], Y.values[train]
+		X_test, y_test = X.values[test], Y.values[test]
 
 		classifier = algo(**options)
 		classifier.fit(X_train, y_train)
@@ -73,7 +76,7 @@ def test_algo(algo, features, classes, name, options={}):
 		scores.append(classifier.score(X_test, y_test))
 
 	score = np.mean(scores)
-	print "Score on training set (with cross-validation) for %s : %.4f" % (name, score)
+	print "Score on training set (with cross-validation) for %s : %.5f" % (name, score)
 
 def plot_bias_variance(datasizes, train_errors, test_errors, title):
     pylab.figure(num=None, figsize=(6, 5))
