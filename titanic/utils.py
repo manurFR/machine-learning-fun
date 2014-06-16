@@ -77,6 +77,7 @@ def test_algo(algo, X, Y, name, options={}):
 
 	score = np.mean(scores)
 	print "Score on training set (with cross-validation) for %s : %.5f" % (name, score)
+	return score
 
 def plot_bias_variance(datasizes, train_errors, test_errors, title):
     pylab.figure(num=None, figsize=(6, 5))
