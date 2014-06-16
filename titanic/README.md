@@ -364,9 +364,9 @@ On travaille avec un kernel radial (R.B.F.). Il est nécessaire d'affiner le par
 
 En lançant la cross-validation sur les données d'apprentissage, on constate que la valeur optimale est de *C* = **10**. Les scores obtenus sont les suivants :
 
-| Algorithme      | Score de cross-validation | Score de test Kaggle.com |
-|-----------------|---------------------------|--------------------------|
-| SVM (*C*=**10**)| 0.82828                   | 0.75120                  |
+|&nbsp;           | Score d'apprentissage | Score de test Kaggle.com |
+|-----------------|-----------------------|--------------------------|
+| SVM (*C*=**10**)| 0.82828               | 0.75120                  |
 
 ### Vote sur plusieurs algorithmes
 Les *Support Vector Machines* n'apportant pas d'amélioration au score sur les données de test, on envisage une dernière configuration : préparer plusieurs modèles qui "voteront" en parallèle et, pour chaque passager, prédire la survie comme étant le vainqueur (la valeur la plus fréquente) de tous ces votes pour le passager et pour les différents modèles.
@@ -384,6 +384,16 @@ Le fichier de prédiction sur les données de test donne sur Kaggle.com un score
 A nouveau, on est en deça du score obtenu avec un arbre de décision. (Et même en-dessous du modèle *ad hoc*.)
 
 ### Conclusion
+
+|&nbsp;                      | Score d'apprentissage | Score de test Kaggle.com |
+|----------------------------|-----------------------|--------------------------|
+| Modèle *ad hoc*            | 0.80808 | 0.77990 |
+| Régression logistique      | 0.80472 | 0.57895 |
+| Arbre de décision          | 0.83285 | 0.78469 |
+| Random Forest (200 arbres) | 0.82836 | 0.78947 |
+| Arbre "Modèle 3."          | **0.83176** | **0.79426** |
+| SVM (*C*=**10**)           | 0.82828 | 0.75120 |
+| Vote multi-algo.           | N/A     | 0.74641 |
 
 
 > Written with [StackEdit](https://stackedit.io/).
