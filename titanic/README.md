@@ -355,4 +355,35 @@ On a donc à nouveau amélioré le meilleur score :
 | Random Forest (200 arbres) | 0.82836 | 0.78947 |
 | Arbre "Modèle 3."          | 0.83176 | **0.79426** |
 
+### Support Vector Machine
+> [06_multi_algo_vote.py](06_multi_algo_vote.py)
+
+On essaie d'implémenter un algorithme de Support Vector Machine, en travaillant sur les *features* qui ont entraîné les meilleurs scores jusqu'à présent : **classe**, nombre de **conjoints, frères et soeurs**, nombre de **parents et enfants**, **sexe**, **titre** et **log(prix du billet + 1)**.
+
+On travaille avec un kernel radial (R.B.F.). Il est nécessaire d'affiner le paramètre "*C*", qui est le facteur de pénalité appliqué à l'erreur au sein de la fonction de coût. 
+
+En lançant la cross-validation sur les données d'apprentissage, on constate que la valeur optimale est de *C* = **10**. Les scores obtenus sont les suivants :
+
+| Algorithme      | Score de cross-validation | Score de test Kaggle.com |
+|-----------------|---------------------------|--------------------------|
+| SVM (*C*=**10**)| 0.82828                   | 0.75120                  |
+
+### Vote sur plusieurs algorithmes
+Les *Support Vector Machines* n'apportant pas d'amélioration au score sur les données de test, on envisage une dernière configuration : préparer plusieurs modèles qui "voteront" en parallèle et, pour chaque passager, prédire la survie comme étant le vainqueur (la valeur la plus fréquente) de tous ces votes pour le passager et pour les différents modèles.
+
+Cette idée est mentionnée au sein de forums et de [blogs](http://tfbarker.wordpress.com/2013/12/22/datamining/) consacrés au dataset Titanic.
+
+J'utilise les trois modèles suivants (sur les mêmes *features* que précedemment) :
+
+* *Support Vector Machine* avec *C* = **10** ;
+* Arbre de décision avec profondeur max. = **6** et population min. des feuilles = **6** ;
+* *Random Forest* avec **200** arbres, profondeur max. = **6** et population min. des feuilles = **6**.
+
+Le fichier de prédiction sur les données de test donne sur Kaggle.com un score d'*Accuracy* de : **0.74641**.
+
+A nouveau, on est en deça du score obtenu avec un arbre de décision. (Et même en-dessous du modèle *ad hoc*.)
+
+### Conclusion
+
+
 > Written with [StackEdit](https://stackedit.io/).
