@@ -17,7 +17,7 @@ L'exploration a été réalisée en Python 2.7.
 > [01_first_steps.py](01_first_steps.py)
 
 Un passage préliminaire sur les données d'apprentissage fait apparaître que 38,4% des passagers de ce fichier ont survécu.
-Cependant, le taux de survie est nettement plus contrasté si l'on divise la population selon le sexe et selon le prix déboursé comme le ticket :
+Cependant, le taux de survie est nettement plus contrasté si l'on divise la population selon le sexe et selon le prix déboursé pour le billet :
 
 | Prix du billet 	| < £10 	| £10 <= prix < £20 	| £20 <= prix < £30 	| £30 <= prix 	|
 |----------------	|-------	|-------------------	|-------------------	|-------------	|
@@ -101,9 +101,12 @@ La mise en place d'un modèle de régression logistique nécessite de fixer la v
 Ce paramètre est destiné à prévenir le risque d'*overfitting*, c'est à dire d'obtenir un modèle très performant sur les données d'apprentissage, mais **non généralisable** pour la prédiction de données ultérieures.
 
 La fonction de coût qui est optimisée (c'est à dire minimisée) pour mettre en place un algorithme de régression logistique est la suivante :
-> *J(T) = [ Somme(Erreurs) + (1 / C ) x Somme(T^2) ] / (2 x m) *
-T étant le vecteur des poids des différentes *features*
+```
+J(T) = [ Somme(Erreurs) + (1 / C ) x Somme(T^2) ] / (2 x m)
+
+T étant le vecteur des poids des différentes features
 m étant le nombre d'exemples (de passagers) dans le jeu d'apprentissage
+```
 
 "*Erreurs*" représente ici le vecteur des différences entre les valeurs prédites et les valeurs connues pour la donnée à prédire (le passager a-t-il survécu ?).
 On obtient donc un compromis entre la modélisation des données du jeu d'apprentissage (le premier terme de l'addition) et le fait que **les poids doivent rester de magnitude raisonnable** (le second terme) pour limiter l'*overfitting*.
@@ -111,7 +114,7 @@ On obtient donc un compromis entre la modélisation des données du jeu d'appren
 *C* permet de régler l'intensité du second terme, et donc l'intensité de la régularisation. L'existence de ce paramètre pose la question de sa valeur optimale, qui doit être ré-évaluée pour chaque jeu de données particulier.
 
 #### Cross-validation
-Comme vu plus haut, le calcul du score d'un modèle sur les données d'apprentissage qui ont servi à le déterminer n'a pas beaucoup de valeur : un score élevé ne présageant pas d'une bonne généralisation ultérieure (par exemple en cas d'*overfitting*).
+Comme vu plus haut, le calcul du score d'un modèle sur les données d'apprentissage qui ont servi à le déterminer n'a pas beaucoup de valeur : un score élevé ne présage pas d'une bonne généralisation ultérieure (par exemple en cas d'*overfitting*).
 
 Toutefois, le jeu de test fourni de propose pas l'information de survie des passagers qui le composent. Il est donc impossible de l'utiliser pour mesurer un score et **comparer rapidement des modèles entre eux** (on peut uploader les prédictions sur Kaggle.com et vérifier le score sur 50% du jeu de test, mais d'une part le processus est manuel, et d'autre part il est limité à 10 tentatives par tranche de 12 heures).
 
@@ -153,7 +156,7 @@ En revanche les autres poids sont négatifs, signalant une corrélation négativ
 * La **classe** est un indicateur assez fort ; on note qu'une classe de valeur plus grande signifie en réalité un statut à bord moins élevé (la 1ère classe est plus confortable que la 3ème). Le modèle *ad hoc* ayant montré que les taux de survie augmentaient avec le prix et la classe, la corrélation négative est logique.
 * La présence de **famille à bord** est corrélée de façon légèrement négative avec la survie, ce qui s'explique peut-être par la plus grande difficulté à évacuer le navire pour des groupes.
 * Etonnament, le **port d'embarquement** est corrélé négativement lui aussi : embarquer en France assure plus de chances de survie qu'en Irlande...
-* L'**âge** des passager est corrélé négativement, ce qui confirme l'adage "les femmes et les enfants d'abord". Le poids est très faible mais on peut remarquer que l'âge et le prix sont les deux *features* dont l'intervalle de valeurs est beaucoup plus large que les autres. Il est donc logique que les poids leur correspondant soient plus faibles.
+* L'**âge** des passager est corrélé négativement, ce qui confirme l'adage "[les femmes et les enfants d'abord](http://fr.wikipedia.org/wiki/Les_femmes_et_les_enfants_d%27abord)". Le poids est très faible mais on peut remarquer que l'âge et le prix sont les deux *features* dont l'intervalle de valeurs est beaucoup plus large que les autres. Il est donc logique que les poids leur correspondant soient plus faibles.
 
 #### Prédictions sur les données de test
 Ce modèle peut ensuite être utilisé pour établir les prédictions concernant les passagers des données de test.
