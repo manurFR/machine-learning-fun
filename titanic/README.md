@@ -384,7 +384,6 @@ Le fichier de prédiction sur les données de test donne sur Kaggle.com un score
 A nouveau, on est en deça du score obtenu avec un arbre de décision. (Et même en-dessous du modèle *ad hoc*.)
 
 ### Conclusion
-
 |&nbsp;                      | Score d'apprentissage | Score de test Kaggle.com |
 |----------------------------|-----------------------|--------------------------|
 | Modèle *ad hoc*            | 0.80808 | 0.77990 |
@@ -395,5 +394,9 @@ A nouveau, on est en deça du score obtenu avec un arbre de décision. (Et même
 | SVM (*C*=**10**)           | 0.82828 | 0.75120 |
 | Vote multi-algo.           | N/A     | 0.74641 |
 
+Ces travaux m'ont permis d'acquérir une première expérience, assez guidée, d'exploration d'un jeu de données de taille raisonnable. Deux points ressortent :
+
+* Il est indispensable de consacrer du temps à l'étude des données afin d'obtenir une bonne vision de leur topologie et de leurs spécificités. Le choix des modèles pourra ainsi être guidé intelligemment. On a notamment constaté qu'un modèle *ad hoc*, ne faisant pas appel à un algorithme de *machine learning* en tant que tel, peut parfois fournir une capacité prédictive satisfaisante.
+* L'exploration méthodique des paramètres des algorithmes est une étape cruciale ; il est presque impossible de "deviner" quelles valeurs produiront les meilleurs résultats pour un dataset donné. Dans le même esprit, le tracé des *learning curves* pour la détection du biais ou de la variance est un outil très efficace.
 
 > Written with [StackEdit](https://stackedit.io/).
