@@ -7,22 +7,24 @@ from utils import load_train_data, test_algo, output_predictions, add_sex_bit, f
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.grid_search import GridSearchCV
+from sklearn import cross_validation
 
 formatting = [add_sex_bit, fill_fare, add_title, logarize_fare]
 features = ['Pclass', 'SibSp', 'Parch', 'SexBit', 'Title', 'LogFarePlusOne']
 
 df, X, Y = load_train_data(formatting)
 
-# SVM
-best_run = [0.0, 0.0] # score, C
-for C in [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 5.0, 10.0, 15.0, 30.0, 100.0]:
-	score = test_algo(SVC, X[features], Y, "SVM with C=%5g" % C, {'C': C, 'random_state': 0})
-	if score > best_run[0]:
-		best_run = [score, C]
+# SVM, searching for best value for C
+kf = cross_validation.KFold(n=len(X), n_folds=8, indices=True)
+grid = GridSearchCV(estimator = SVC(random_state=0), cv = kf, verbose = 1,
+					param_grid = dict(C=[0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 5.0, 10.0, 15.0, 30.0, 100.0]))
+grid.fit(X[features], Y)
 
-print
-svm_score, svm_C = best_run
-print "Best overall: C=%5g with score=%.5f" % (svm_C, svm_score)
+svm_score = grid.best_score_
+svm_C = grid.best_params_['C']
+
+print "Best parameters for SVM: C=%5g with score=%.5f" % (svm_C, svm_score)
 
 svm_classifier = SVC(C = svm_C, random_state = 0)
 svm_classifier.fit(X[features], Y)
