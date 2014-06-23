@@ -5,7 +5,7 @@ import pandas as pan
 import numpy as np
 import re
 from matplotlib import pylab
-from sklearn.cross_validation import KFold, train_test_split
+from sklearn.cross_validation import KFold, train_test_split, cross_val_score
 from sklearn.preprocessing import LabelEncoder
 
 def add_sex_bit(X):
@@ -64,16 +64,7 @@ def load_train_data(format_funcs = []):
 
 def test_algo(algo, X, Y, name, options={}):
 	cv = KFold(n=len(X), n_folds=8, indices=True)
-
-	scores = []
-	for train, test in cv:
-		X_train, y_train = X.values[train], Y.values[train]
-		X_test, y_test = X.values[test], Y.values[test]
-
-		classifier = algo(**options)
-		classifier.fit(X_train, y_train)
-
-		scores.append(classifier.score(X_test, y_test))
+	scores = cross_val_score(algo(**options), X, Y, cv=cv)
 
 	score = np.mean(scores)
 	print "Score on training set (with cross-validation) for %s : %.5f" % (name, score)
