@@ -406,10 +406,12 @@ Ces travaux m'ont permis d'acquérir une première expérience, assez guidée, d
 
 Quelques jours après cette étude, j'ai découvert des méthodes plus générales de la librairie **scikit-learn** qui simplifient le code. Elles ont été intégrées aux scripts développés :
 
-##### *sklearn.cross_validation.**cross_val_score**(model, X, Y, cv)*
+##### cross_val_score
+``` sklearn.cross_validation.cross_val_score(model, X, Y, cv) ```
 Cette méthode retourne, en une étape, les scores produits par le modèle sur les différentes itérations de cross-validation définies par l'algorithme *cv* (par exemple avec *cv* = KFold(n_folds=8) pour un **KFold** en 8 passes). Comme auparavant, on prend alors la moyenne de la liste retournée pour avoir un score de cross-validation exploitable.
 
-##### *sklearn.grid_search.**GridSearchCV**(estimator, param_grid, cv)*
+##### GridSearchCV
+``` sklearn.grid_search.GridSearchCV(estimator, param_grid, cv) ```
 Cette classe permet, en une étape, d'explorer l'espace en N dimensions des paramètres à affiner d'un modèle (ici, l'*estimator*) afin de trouver la meilleure valeur de ceux-ci. Par exemple, cet outil permet d'explorer les intervalles de valeurs de *max_depth* et *min_samples_leaf* pour un arbre de décision. L'argument *param_grid* est un dict ou une liste de dicts dont les clés sont les noms des paramètres et les valeurs des listes de valeurs possibles. S'il y a plus d'un paramètre, **GridSearchCV** va les croiser.
 Par exemple, avec *param_grid* = {'a': [1, 10], 'b': [0.5, 0.8]}, quatre modèles différents vont être construits et comparés :
 
@@ -421,7 +423,8 @@ Par exemple, avec *param_grid* = {'a': [1, 10], 'b': [0.5, 0.8]}, quatre modèle
 Le score pour chaque essai est construit par cross-validation. La classe accepte un paramètre *cv* pour définir les paramètres de cette cross-validation (KFold à 3 passes par défaut).
 Une fois un objet de cette classe instancié, un appel à la méthode *fit(X, Y)* est nécessaire pour lancer l'apprentissage. Les propriétés *best_score_*, *best_params_* et *best_estimator_* de l'objet fournissent le résultat de l'exploration.
 
-##### *sklearn.metrics.**classification_report**(Y_truth, Y_predicted)*
+##### classification_report
+``` sklearn.metrics.classification_report(Y_truth, Y_predicted) ```
 En fournissant à cette méthode les sorties connues et prédites du jeu de données d'apprentissage avec un modèle, on obtient en une étape la matrice 2x2 des true positive, true negative, false positive, false negative, ainsi que les métriques associées : **precision**, **recall**, **score F1**.
 
 
