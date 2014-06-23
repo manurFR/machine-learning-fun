@@ -23,7 +23,7 @@ test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Embarked, Deck and T
 
 
 # classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
-classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6)
+classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6, random_state=2)
 classifier.fit(X, Y)
 
 print "Importance of features:"
@@ -46,7 +46,7 @@ test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Title and no Age",
 			{'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
 
 # classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
-classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6)
+classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6, random_state=2)
 classifier.fit(X, Y)
 
 print "Importance of features:"
@@ -69,7 +69,7 @@ test_algo(DecisionTreeClassifier, X, Y, "Decision Tree with Title, Log(Fare+1) a
 			{'max_depth': 6, 'min_samples_leaf': 6, 'random_state': 2})
 
 # classifier = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=6)
-classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6)
+classifier = DecisionTreeClassifier(max_depth=6, min_samples_leaf=6, random_state=2)
 classifier.fit(X, Y)
 
 print "Importance of features:"
