@@ -6,6 +6,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from utils import load_train_data, add_sex_bit, fill_fare, fill_median_age, output_predictions, plot_learning_curve, \
 				  encode_embarked, extract_deck, add_title, logarize_fare, test_algo
+from sklearn import metrics
 
 
 # add title, embarked, deck
@@ -29,6 +30,7 @@ classifier.fit(X, Y)
 print "Importance of features:"
 print features1
 print classifier.feature_importances_
+print metrics.classification_report(Y.values, classifier.predict(X))
 
 output_predictions(classifier, '05_submission_1.csv', formatting_functions1, features1)
 print
@@ -52,6 +54,7 @@ classifier.fit(X, Y)
 print "Importance of features:"
 print features2
 print classifier.feature_importances_
+print metrics.classification_report(Y.values, classifier.predict(X))
 
 output_predictions(classifier, '05_submission_2.csv', formatting_functions2, features2)
 print
@@ -75,5 +78,6 @@ classifier.fit(X, Y)
 print "Importance of features:"
 print features3
 print classifier.feature_importances_
+print metrics.classification_report(Y.values, classifier.predict(X))
 
 output_predictions(classifier, '05_submission_3.csv', formatting_functions3, features3)
