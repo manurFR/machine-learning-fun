@@ -4,7 +4,8 @@
 import matplotlib.pyplot as plt
 import pandas as pan
 from pandas.tools.plotting import scatter_matrix
-from pima_utils import load_pima
+from pima_utils import load_pima, COLUMN_NAMES
+from scipy.stats import linregress
 
 pima = load_pima()
 
@@ -32,5 +33,17 @@ scatter_matrix(pima, alpha=0.2, figsize=(6, 6), diagonal='kde')
 
 # compare glucose test result for diabetic and non-diabetic women
 pima.groupby('diabetic').glucose.hist(alpha=0.4)
+
+print
+print "Correlations (with r squared) :"
+correlations = [] # [('feature1 - feature 2', r_squared), (), ...]
+for i, iname in enumerate(COLUMN_NAMES):
+	for j, jname in enumerate(COLUMN_NAMES):
+		if i > j:
+			_slope, _intercept, r_value, _p_value, _std_err = linregress(pima[iname].values, pima[jname].values)
+			correlations.append((iname + ' - ' + jname, r_value**2))
+
+for corr in sorted(correlations, key = lambda corr: corr[1], reverse = True):
+	print "%s : %.5f" % corr
 
 raw_input("Type enter to quit")
