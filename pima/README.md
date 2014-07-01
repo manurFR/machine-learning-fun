@@ -76,4 +76,33 @@ Enfin, on trace les graphes de la matrice de covariance entre les *features*, av
 On peut y rechercher des corrélations, comme celle assez claire entre l'épaisseur de peau au triceps et le body mass index.
 On constate également (dernières ligne et colonne) qu'aucune *feature* ne présente une transition nette et donc ne permet de prédire seule la future incidence du diabéte.
 
+### Préparation des données
+> [02_logisticreg.py](02_logisticreg.py)
+
+La première étape consiste à préparer les données avant d'appliquer un algorithme.
+On remplace les valeurs à zéro de **body mass index**, **pression artérielle** et **épaisseur de peau au triceps** par la valeur moyenne de ce feature sur l'ensemble des données.
+
+Ensuite, on standardise les valeurs : pour chaque feature, on retire à chaque valeur la moyenne du feature (pour se centrer sur 0.0) et on la divise par l'écart type (pour que celui-ci soit désormais de 1.0). On a ainsi des *features* qui sont toutes centrées autour de zéro et à peu près de même amplitude. Cela permet d'éviter un éventuel effet de masse des *features* qui peuvent atteindre des valeurs larges (comme le **taux d'insuline**) par rapport à celles qui restent faibles (comme le **nombre de grossesses**).
+
+Enfin, on divise aléatoirement les données concernant les 768 femmes en deux ensembles (avec ```train_test_split()```) :
+
+* un jeu d'apprentissage comprenant 75% des individus (576 femmes),
+* un jeu de test, pour la validation, comprenant les 25% restant (192 femmes).
+
+L'apprentissage et l'affinage des paramètres seront réalisés sur le premier ensemble, le calcul des scores finaux sur le deuxième.
+
+### Régression Logistique
+Le premier modèle envisagé est une régression logistique.
+
+#### Cross-validation
+Les calculs de score sur le jeu d'apprentissage seront réalisés par cross-validation en **5** passes avec un algorithme de **KFold stratifié**, c'est à dire un KFold pour lequel le pourcentage de chaque classe dans l'ensemble du jeu d'apprentissage (diabétique ou non) est conservé dans les deux sous-ensembles utilisés à chaque passe. Les scores de chacune des 5 passes seront au final aggrégés dans une moyenne.
+
+#### Paramètre C
+Les régressions logistiques ont un paramètre "de régularisation" **C** à fixer. On réalise ici une "grid search" pour trouver la meilleure valeur. Etant donné la disproportion entre les deux classes, on utilisera le score F1 pour piloter la recherche de la valeur optimale.
+```gridsearch = grid_search.GridSearchCV(LogisticRegression(), {'C': [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]}, cv=StratifiedKFold(train_target, n_folds=5), scoring='f1')```
+
+La valeur optimale trouvée pour le paramètre **C** est : **0.1**.
+Le score F1 correspondant (en *stratified KFold* sur les données d'apprentissage) est de 0.64008.
+
+
 > Written with [StackEdit](https://stackedit.io/).
