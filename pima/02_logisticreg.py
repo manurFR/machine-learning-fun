@@ -1,26 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: UTF8 -*-
 
-from pima_utils import load_pima, COLUMN_NAMES
-from sklearn.cross_validation import train_test_split, StratifiedKFold, cross_val_score
-from sklearn import preprocessing, linear_model, grid_search, metrics
+from pima_utils import load_and_prepare_pima, COLUMN_NAMES
+from sklearn.cross_validation import StratifiedKFold, cross_val_score
+from sklearn import linear_model, grid_search, metrics
 import numpy as np
 import pylab as pl
 
-pima = load_pima()
-
-target = pima.pop('diabetic')
-
-# replace 0s by the mean of their feature, and scale each feature
-pima['bmi'].replace(0, np.nan, inplace=True)
-pima['blood pressure'].replace(0, np.nan, inplace=True)
-pima['skin'].replace(0, np.nan, inplace=True)
-
-imputer = preprocessing.Imputer(missing_values='NaN', strategy='mean', axis=0)
-pima_prepared = preprocessing.scale(imputer.fit_transform(pima))
-
-# split 75/25 between a train set and a test set
-train, test, train_target, test_target = train_test_split(pima_prepared, target, train_size=0.75, random_state=0)
+train, test, train_target, test_target = load_and_prepare_pima()
 
 ## Logistic Regression ##
 print "## Logistic Regression ##"
