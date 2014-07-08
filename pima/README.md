@@ -7,12 +7,14 @@ Les indiens [Pima](http://en.wikipedia.org/wiki/Pima_people) ("Akimel O'odham") 
 A la fin des années 1980, J.W. Smith *et al.* ont formaté et étudié [ces données](https://archive.ics.uci.edu/ml/datasets/Pima+Indians+Diabetes) devenues classiques dans le domaine des statistiques et du *machine learning*. Leur article initial décrit ces données et les résultats de leur étude avec un premier algorithme :
 [Using the ADAP Learning Algorithm to Forecast the Onset of Diabetes Mellitus](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2245318/), Smith, J.W., Everhart, J.E., Dickson, W.C., Knowler, W.C., & Johannes, R.S. -- *Proceedings of the Symposium on Computer Applications and Medical Care (pp. 261--265).*
 
+L'exploration sera réalisée en Python 2.7 ; l'analyse préliminaire des données avec **Pandas**, le *machine learning* avec **scikit-learn**.
+
 ### Analyse préliminaire
 
 Le jeu de données contient les résultats d'analyse pour 768 femmes. 
 L'étude originale ayant un objectif prédictif à 5 ans, les femmes ayant déjà été diagnostiquées avant l'analyse ont été écartée du dataset. En revanche, un diabète a été détecté pour 268 d'entre elles dans les cinq ans qui suivent la visite médicale, soit un **taux d'incidence de 34,9%** (7% par an), effectivement très élevé.
 
-En termes de *machine learning*, cela signifie que les populations des deux classes à prédire sont inégales. Il sera donc probablement plus pertinent d'utiliser des métriques de type *precision*, *recall*, et *score F1* (plutôt que la simple *accuracy*).
+En termes de *machine learning*, cela signifie que les populations des deux classes à prédire sont inégales (35% contre 65%). Il pourra donc être plus pertinent d'utiliser des métriques de type *precision*, *recall*, et *score F1* plutôt que la simple *accuracy*.
 
 Les *features* (les valeurs mesurées) sont :
 
@@ -22,7 +24,7 @@ Les *features* (les valeurs mesurées) sont :
 * *skin* : [épaisseur de la peau](http://www.topendsports.com/testing/skinfold-tricep.htm) au niveau du triceps (mm), mesure apparemment corrélée à la masse graisseuse
 * *insulin* : quantité d'insuline dans le sang deux heures après ingestion de glucose (mm U/ml)
 * *bmi* : body mass index (poids en kg / carré de la hauteur en mètres)
-* *pedigree* : résultat d'une fonction assez complexe, décrite dans la publication de J.W. Smith *et al* citée plus haut, et qui traduit la densité de membres de la famile déjà diagnostiqués comme diabétiques, pondérée par la proximité du parent (les pères, mères, frères, soeurs ont plus de poids que les cousins, etc.). Valeurs comprises entre 0.078 et 2.420.
+* *pedigree* : résultat d'une fonction assez complexe, décrite dans la publication de J.W. Smith *et al* citée plus haut, et qui traduit la densité de membres de la famile déjà diagnostiqués comme diabétiques, pondérée par la proximité du parent (les pères, mères, frères, soeurs ont plus de poids que les cousins, etc.). Valeurs comprises entre 0.078 et 2.420 sur le dataset étudié.
 * *age* : en années
 
 On constate que toutes ces *features* sont des nombres, dont la plupart (à part le nombre de grossesses et l'âge) sont continues.
@@ -69,6 +71,8 @@ La courbe pour le taux de glucose est notablement différente. On peut superpose
 
 ![Histogramme Glucose comparé](charts/histo_glucose.png)
 
+Il y a superposition, ce qui indique que cette *feature* ne pourra suffire à elle seule à prédire un diabète. Toutefois, la forme différente des histogrammes semble indiquer qu'elle sera déterminante dans la prédiction.
+
 Enfin, on trace les graphes de la matrice de covariance entre les *features*, avec leurs densités sur la diagonale :
 
 ![Scatter plot features](charts/scatterplot.png)
@@ -104,5 +108,43 @@ Les régressions logistiques ont un paramètre "de régularisation" **C** à fix
 La valeur optimale trouvée pour le paramètre **C** est : **0.1**.
 Le score F1 correspondant (en *stratified KFold* sur les données d'apprentissage) est de 0.64008.
 
+#### Apprentissage et test du modèle
+On réalise le *fit()* du modèle sur l'ensemble des doonées du jeu d'apprentissage avec **C=0.1**, ce qui permet de réaliser la prédiction sur le jeu de test et de la comparer avec la prévalence effective à 5 ans :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+
+Les facteurs de chaque *feature* ("scalée") dans le modèle sont les suivants :
+
+| *biais* | pregnancies | glucose    | blood pressure | skin       | insulin    | bmi        | pedigree   | age        |
+|--------|-------------|------------|----------------|------------|------------|------------|------------|------------|
+| -0.71 | 0.26 | 0.90 | -0.12 | -0.02 | -0.05 | 0.60 | 0.25 | 0.23 |
+
+On constate que le **taux de glucose** est le *feature* le plus déterminant, suivi par le **body mass index**, puis à peu près avec la même importance du **nombre de grossesses**, du **pedigree** et de l'**âge**.
+
+#### Etude sur precision / recall / seuil
+La métrique de *precision* est définie comme ratio des femmes réellement diabétiques parmi celles qui ont été prédites comme telles (c'est à dire le ratio des *true positive* sur le décompte des *true + false positive*).
+Le *recall* ("rappel") est défini comme le ratio des femmes  **prédites** comme diabétiques parmi celles qui le sont réellement (c'est à dire le ratio des *true positive* sur le décompte des *true positive* + *false negative*).
+
+On trace les courbes de ces deux métriques en fonction du seuil de prédiction du modèle (valeur de la régression au-dessus de laquelle on prédit qu'une femme va se révéler diabétique dans les cinq ans) :
+
+![Courbe precision / recall](charts/logreg_precisionrecall.png)
+
+L'objectif est de trouver le seuil pour lequel on a des valeurs acceptables pour les deux métriques. Le score F1 est une combinaison (la moyenne harmonique) de ces deux métriques.
+
+On trace également ces métriques en fonction des différentes valeurs de seuil possible (entre 0 et 1) :
+
+![Courbes en fonction du seuil](charts/logreg_threshold.png)
+
+Grâce à cette figure, on constate qu'on peut gagner en *recall* et en score F1 en baissant légèrement le seuil "par défaut" de 0.5, tout en ne perdant que très modérément de l'*accuracy*.
+
+#### Prévisions du modèle avec seuil = 0.45
+En choisissant un seuil de 0.45 sur le même modèle (inutile de recommencer l'apprentissage), on obtient les scores suivants :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
 
 > Written with [StackEdit](https://stackedit.io/).
