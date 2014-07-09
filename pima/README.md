@@ -147,4 +147,29 @@ En choisissant un seuil de 0.45 sur le même modèle (inutile de recommencer l'a
 | Régression Logistique | 0.78646    | 0.62     |
 | Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
 
+### Perceptron
+Le perceptron est un modèle linéaire comme la régression logistique, qui affecte des poids à chaque *feature* et produit une prédiction en convertissant le résultat (entier) en une valeur binaire.
+La différence réside dans l'algorithme d'apprentissage : le perceptron est mis en place comme un "réseau" de neurones à un seul neurone, et l'entraînement a lieu par back-propagation, c'est à dire par modification des poids (initialisés arbitrairement) de chaque *feature* en proportion du delta entre la valeur prédite et la valeur connue (en bouclant **n** fois sur l'ensemble des données d'apprentissage). Cette proportion est pilotée par un facteur **alpha**, nommé le taux d'apprentissage (*learning rate*).
+
+#### Paramétrage et score
+Les deux paramètres principaux **n** (nombre d'itérations sur le jeu d'apprentissage) et **alpha** (facteur de multiplication du delta entre valeurs prédites et connues pour la back-propagation) sont explorés par Grid Search.
+
+On constate que la valeur de **alpha** n'a pas d'impact sur le modèle (même score F1 quel que soit la valeur de **alpha** entre 0.0001 et 0.3). On garde donc le défaut pour ce paramètre de scikit-learn : **0.0001**.
+
+| &nbsp; | **n** | **alpha** |
+|--------|-------|-----------|
+| Paramètres | 15 | 0.0001 |
+
+Le score F1 de cross-validation obtenu (sur les données d'apprentissage) est 0.56183.
+
+Sur le jeu de test, on obtient les scores :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Perceptron            | 0.72917    | 0.54     |
+
+Les scores étant sensiblement plus faibles que la régression logistique, on ne poursuit pas l'étude avec cet algorithme.
+
 > Written with [StackEdit](https://stackedit.io/).
