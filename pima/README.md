@@ -172,4 +172,34 @@ Sur le jeu de test, on obtient les scores :
 
 Les scores étant sensiblement plus faibles que la régression logistique, on ne poursuit pas l'étude avec cet algorithme.
 
+### K-Nearest Neighbors
+Le modèle des **K** plus proches voisins est l'un des plus simples utilisable en machine learning, tout en restant très efficace.
+Pour chaque élément à prédire, on trouve ses **K** plus proches voisins issus du jeu d'apprentissage (dans l'hyper-espace formé par les *features*). La class prédite (diabétique ou non) sera celle rencontrée dans la majorité de ces voisins.
+
+On choisit d'explorer deux paramètres en Grid Search :
+
+* **K** : le nombre de voisins considérés ;
+* **weigths** : la pondération de la classe de chaque voisin dans le "vote" déterminant la classe prédite. Avec ```'uniform'```, il n'y a pas de pondération et chaque voisin apporte un "vote" ; avec ```'distance'```, la classe de chaque voisin est pondérée par l'inverse de la distance euclidienne entre ce point et le point pour lequel on veut réaliser la prédiction. Ainsi, plus un voisin est proche, plus fortement il contribue à la prédiction finale.
+
+On obtient les valeurs optimales suivantes :
+
+| &nbsp; | **K** | **weights** |
+|--------|-------|-----------|
+| Paramètres | 5 | uniform   |
+
+C'est à dire exactement les valeurs par défaut du modèle ```KNeighborsClassifier``` dans scikit-learn !
+
+La cross-validation donne un score F1 de 0.59071.
+
+Sur le jeu de test, on obtient les scores :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Perceptron            | 0.72917    | 0.54     |
+| K-Nearest Neighbors   | 0.77083    | 0.60     |
+
+Les résultats sont acceptables, mais pas aussi satisfaisant que ceux de la régression logistique.
+
 > Written with [StackEdit](https://stackedit.io/).
