@@ -202,4 +202,33 @@ Sur le jeu de test, on obtient les scores :
 
 Les résultats sont acceptables, mais pas aussi satisfaisant que ceux de la régression logistique.
 
+### Support Vector Machines
+L'approche S.V.M. consiste à déterminer dans l'hyper-espace des *features* une frontière qui sépare les zones des deux classes ("diabétique" ou non).
+
+Les paramètres à fixer sont explorés en Grid Search :
+
+* **C**, l'inverse du paramètre de régularisation, qui cherche à prévenir l'over-fitting ;
+* Le **kernel**, c'est à dire le type de fonction discriminante dans l'hyper-espace des *features*. Parmi les types possibles, on évalue uniquement les deux kernels les plus communs : *'linear'*, qui produira comme frontière un hyper-plan continu, et *'rbf'*, qui appliquera une gaussienne autour de chaque point de l'ensemble d'apprentissage et produira une frontière non linéaire ;
+* Le facteur **gamma**, uniquement pour le kernel *'rbf'*, qui définit la forme de la gaussienne (**gamma** = 1 / sigma^2).
+
+On obtient les valeurs optimales suivantes :
+
+| &nbsp; | **C** | **kernel** | **gamma** |
+|--------|-------|------------|-----------|
+| Paramètres | 1.0 | linear   | N/A       |
+
+La cross-validation donne un score F1 de 0.63384.
+
+Sur le jeu de test, on obtient les scores :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Perceptron            | 0.72917    | 0.54     |
+| K-Nearest Neighbors   | 0.77083    | 0.60     |
+| Linear S.V.M.         | **0.79167** | **0.64** |
+
+Ce modèle parvient à conserver le meilleur score F1 obtenu jusqu'à présent (régression logistique avec un seuil à 0.45), tout en améliorant l'*accuracy*. Les support vector machines sont donc le modèle optimal à ce stade.
+
 > Written with [StackEdit](https://stackedit.io/).
