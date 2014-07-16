@@ -231,4 +231,47 @@ Sur le jeu de test, on obtient les scores :
 
 Ce modèle parvient à conserver le meilleur score F1 obtenu jusqu'à présent (régression logistique avec un seuil à 0.45), tout en améliorant l'*accuracy*. Les support vector machines sont donc le modèle optimal à ce stade.
 
+### Arbre de décision
+Les arbres de décision sont des modèles non algébriques pour prédire une classe. Il s'agit d'arbres binaires dont chaque noeud représente une *feature* et une valeur de seuil. Les individus pour lesquels la *feature* est inférieure ou égale au seuil vont dans le fils de gauche, les autres dans le fils de droite. Les feuilles représentent les prédictions, déterminées par le mode de la classe à prédire sur la population de la feuille.
+
+Les paramètres à fixer sont explorés en Grid Search :
+
+* Le **critère** de construction, c'est à dire le Gini ou l'entropie ;
+* La **profondeur maximale** de l'arbre, que l'on peut limiter ou pas ;
+* Le **nombre minimal d'individus nécessaire pour subdiviser** une feuille en noeud (lors de la construction) ;
+* Le **nombre minimal d'individus nécessaire pour créer une feuille** (lors de la construction).
+
+On obtient les valeurs optimales suivantes :
+
+| &nbsp; | **critère** | **profondeur max.** | **nb min pour subdiviser** | **nb min pour créer une feuille ** |
+|------------|-----------|---|---|----|
+| Paramètres | 'entropy' | 5 | 2 | 10 |
+
+La cross-validation donne un score F1 de 0.64996.
+
+Sur le jeu de test, on obtient les scores :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Perceptron            | 0.72917    | 0.54     |
+| K-Nearest Neighbors   | 0.77083    | 0.60     |
+| Linear S.V.M.         | **0.79167** | **0.64** |
+| Arbre de décision     | 0.77604    | 0.63     |
+
+On constate que l'arbre de décision simple offre une performance correcte mais moins optimale que les S.V.M. En cross-validation, le score F1 est le meilleur rencontré jusqu'à présent, permettant d'émettre l'hypothèse que l'on rencontre ici la tendance naturelle des arbres de décision à "over-fitter" le jeu d'apprentissage.
+
+Pour les arbres de décision, scikit-learn rend disponible le ratio d'importance de chaque feature dans l'arbre obtenu :
+
+| pregnancies | glucose | blood pressure | skin    | insulin | bmi     | pedigree | age     |
+|-------------|---------|----------------|---------|---------|---------|----------|---------|
+| 0.00000     | 0.41428 | 0.04101        | 0.03716 | 0.07365 | 0.22529 | 0.01764  | 0.19099 |
+
+On peut constater que :
+
+* Le nombre de grossesses est considéré par ce modèle comme totalement dépourvu d'influence sur la prévalence du diabète !
+* Les trois *features* les plus déterminantes sont, dans l'ordre et loin devant les autres : le taux de glucose lors du test, l'indice de masse corporelle (*bmi*) et l'âge. La prépondérance du taux de glucose dans l'ordre d'importance des features correspond bien aux intuitions déjà obtenues lors des étapes précédentes de l'étude.
+
+
 > Written with [StackEdit](https://stackedit.io/).
