@@ -243,7 +243,7 @@ Les paramètres à fixer sont explorés en Grid Search :
 
 On obtient les valeurs optimales suivantes :
 
-| &nbsp; | **critère** | **profondeur max.** | **nb min pour subdiviser** | **nb min pour créer une feuille ** |
+| &nbsp; | **critère** | **profondeur max.** | **nb min pour subdiviser** | **nb min pour créer une feuille** |
 |------------|-----------|---|---|----|
 | Paramètres | 'entropy' | 5 | 2 | 10 |
 
@@ -273,5 +273,39 @@ On peut constater que :
 * Le nombre de grossesses est considéré par ce modèle comme totalement dépourvu d'influence sur la prévalence du diabète !
 * Les trois *features* les plus déterminantes sont, dans l'ordre et loin devant les autres : le taux de glucose lors du test, l'indice de masse corporelle (*bmi*) et l'âge. La prépondérance du taux de glucose dans l'ordre d'importance des features correspond bien aux intuitions déjà obtenues lors des étapes précédentes de l'étude.
 
+### "Random Forest"
+Les Random Forest sont des ensembles d'arbres de décisions construits chacun sous des conditions légèrement différentes. La prédiction finale est donnée par la majorité des résultats des prédictions de chaque arbre individuellement.
+
+Les paramètres à fixer sont les mêmes, auxquels s'ajoute le nombre d'arbres dans la forêt :
+
+| &nbsp; | **nombre d'arbres** | **critère** | **profondeur max.** | **nb min pour subdiviser** | **nb min pour créer une feuille** |
+|------------|----|-----------|-----------------|---|---|
+| Paramètres | 10 | 'entropy' | (pas de limite) | 2 | 2 |
+
+On note que les paramètres optimaux sont assez différents de ceux pour un arbre simple, à part le critère 'entropy'. On constate également qu'une dizaine d'arbres suffisent à atteindre la performance optimale, ce qui est assez peu.
+
+La cross-validation donne un score F1 de 0.59854.
+
+Sur le jeu de test, on obtient les scores :
+
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Perceptron            | 0.72917    | 0.54     |
+| K-Nearest Neighbors   | 0.77083    | 0.60     |
+| Linear S.V.M.         | **0.79167** | **0.64** |
+| Arbre de décision     | 0.77604    | 0.63     |
+| Random Forest         | 0.76042    | 0.57     |
+
+La performance d'une Random Forest est donc ici assez décevante, même en comparaison d'un arbre de décision simple.
+
+Le ratio d'importance des *feature* donne les valeurs suivantes :
+| pregnancies | glucose | blood pressure | skin    | insulin | bmi     | pedigree | age     |
+|-------------|---------|----------------|---------|---------|---------|----------|---------|
+| 0.05563     | 0.36301 | 0.02786        | 0.07133 | 0.04601 | 0.18266 | 0.10093  | 0.15257 |
+
+L'ordre d'importance reste identique à la section précédente : le taux de glucose emporte la majorité de la décision, suivie de l'indice de masse corporelle et de l'âge. La fonction de pedigree diabétique prend plus d'imporance.
+Le nombre de grossesses n'est plus exclu de la prédiction, et intervient même avec plus d'importance que la pression artérielle et le taux d'insuline lors du test.
 
 > Written with [StackEdit](https://stackedit.io/).
