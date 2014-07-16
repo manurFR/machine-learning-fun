@@ -301,6 +301,7 @@ Sur le jeu de test, on obtient les scores :
 La performance d'une Random Forest est donc ici assez décevante, même en comparaison d'un arbre de décision simple.
 
 Le ratio d'importance des *feature* donne les valeurs suivantes :
+
 | pregnancies | glucose | blood pressure | skin    | insulin | bmi     | pedigree | age     |
 |-------------|---------|----------------|---------|---------|---------|----------|---------|
 | 0.05563     | 0.36301 | 0.02786        | 0.07133 | 0.04601 | 0.18266 | 0.10093  | 0.15257 |
