@@ -2,6 +2,7 @@ from math import sqrt, pi, exp
 from numpy import mean, std
 import pandas
 from sklearn.cross_validation import train_test_split
+from sklearn.naive_bayes import GaussianNB
 
 
 COLUMN_NAMES = ['pregnancies', 'glucose', 'blood pressure', 'skin', 'insulin', 'bmi', 'pedigree', 'age', 'diabetic']
@@ -16,7 +17,7 @@ print 'Loaded data file {0} with {1} rows'.format(filename, len(dataset))
 
 classes = dataset.pop('diabetic')
 
-train, test, train_classes, test_classes = train_test_split(dataset, classes, train_size=0.67)
+train, test, train_classes, test_classes = train_test_split(dataset, classes, train_size=0.67, random_state=666)
 print 'Split {0} rows into train with {1} and test with {2}'.format(len(dataset), len(train), len(test))
 
 # 2.1 Separate data by class
@@ -41,3 +42,23 @@ def class_probability(instance):
         for j in range(len(instance)):
             probabilities[clazz] *= gaussian_probability(instance[j], means_by_class[clazz][j], stddev_by_class[clazz][j])
     return probabilities
+
+
+def predict_class(instance):
+    probabilities = class_probability(instance)
+    best_class, best_proba = None, -1
+    for value, proba in probabilities.iteritems():
+        if best_proba is None or proba > best_proba:
+            best_class = value
+            best_proba = proba
+    return best_class
+
+# predictions for all test set instances
+predictions = [predict_class(instance) for instance in test]
+
+# accuracy
+correct_predictions = 0
+for i in range(len(test_classes)):
+    if predictions[i] == test_classes[i]:
+        correct_predictions += 1
+print 'Accuracy: {0}'.format(100.0*correct_predictions/float(len(test_classes)))
