@@ -6,3 +6,4 @@ Machine Learning Portfolio
 ### Comptes rendus de travaux de *machine learning*
 
 1. [Titanic](titanic/#readme)
+2. [Indiens Pima](pima/#readme)
