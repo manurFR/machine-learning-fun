@@ -1,6 +1,8 @@
 from __future__ import division
 import math
 
+#### VECTORS ####
+
 
 def vector_add(vector1, vector2):
     if len(vector1) != len(vector2):
@@ -43,3 +45,29 @@ def magnitude(vector):
 
 def distance(vector1, vector2):
     return magnitude(vector_substract(vector1, vector2))
+
+
+#### MATRICES ####
+
+
+def shape(matrix):
+    if not matrix:
+        return 0, 0
+    return len(matrix), len(matrix[0])
+
+
+def get_row(matrix, row_index):
+    return matrix[row_index]
+
+
+def get_column(matrix, column_index):
+    return list(zip(*matrix)[column_index])
+
+
+def make_matrix(rows, columns, entry_fn):
+    return [[entry_fn(row, col) for col in range(columns)] for row in range(rows)]
+
+
+def is_diagonal(row, col):
+    """for use in creating identity matrices, e.g. make_matrix(<n>, <n>, is_diagonal)"""
+    return 1 if row == col else 0

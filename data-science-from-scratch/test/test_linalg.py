@@ -1,10 +1,10 @@
 from __future__ import division
 from unittest import TestCase
-import math
+
 import linalg
 
 
-class TestLinearAlgebra(TestCase):
+class TestVectors(TestCase):
     def test_vector_add(self):
         self.assertEqual([3, 3], linalg.vector_add([1, 2], [2, 1]))
         self.assertEqual([4, 5, 4], linalg.vector_add([-1, 2, 4], [5, 3, 0]))
@@ -51,3 +51,36 @@ class TestLinearAlgebra(TestCase):
         self.assertEqual(0, linalg.distance([0, 1], [0, 1]))
         self.assertEqual(2, linalg.distance([5], [3]))
         self.assertEqual(0, linalg.distance([], []))
+
+
+class TestMatrices(TestCase):
+    def test_shape(self):
+        self.assertEqual((3, 2), linalg.shape([[1, 1], [2, 2], [3, 3]]))
+        self.assertEqual((3, 0), linalg.shape([[], [], []]))
+        self.assertEqual((0, 0), linalg.shape([]))
+
+    def test_get_row(self):
+        self.assertEqual([3, 4], linalg.get_row([[1, 2], [3, 4], [5, 6]], 1))
+        self.assertEqual([], linalg.get_row([[], [], []], 1))
+
+        with self.assertRaises(IndexError):
+            linalg.get_row([[1, 2]], 1)
+
+    def test_get_column(self):
+        self.assertEqual([2, 4, 6], linalg.get_column([[1, 2], [3, 4], [5, 6]], 1))
+        self.assertEqual([1, 1, 3], linalg.get_column([[1], [1], [3]], 0))
+
+        with self.assertRaises(IndexError):
+            linalg.get_column([[1, 2]], 3)
+
+    def test_make_matrix(self):
+        self.assertEqual([[0, 2, 4], [1, 3, 5]], linalg.make_matrix(2, 3, lambda row, col: row + col*2))
+        self.assertEqual([[0, 0], [0, 0]], linalg.make_matrix(2, 2, lambda row, col: 0))
+        self.assertEqual([[], [], []], linalg.make_matrix(3, 0, lambda row, col: 8))
+        self.assertEqual([], linalg.make_matrix(0, 0, lambda row, col: 5))
+
+    def test_is_diagonal(self):
+        self.assertEqual(1, linalg.is_diagonal(0, 0))
+        self.assertEqual(1, linalg.is_diagonal(3, 3))
+        self.assertEqual(0, linalg.is_diagonal(1, 2))
+        self.assertEqual(0, linalg.is_diagonal(4, -4))
