@@ -1,5 +1,7 @@
 from __future__ import division
 from collections import Counter
+import math
+from linalg import sum_of_squares
 
 
 def mean(vector):
@@ -34,3 +36,26 @@ def mode(vector):
     counts = Counter(vector)
     _, max_count = counts.most_common(1)[0]
     return sorted([component for component, count in counts.iteritems() if count == max_count])
+
+
+def data_range(vector):
+    if not vector:
+        return 0
+    return max(vector) - min(vector)
+
+
+def de_mean(vector):
+    """deviation mean=vector - mean(vector)"""
+    mean_of_vector = mean(vector)
+    return [component - mean_of_vector for component in vector]
+
+
+def variance(vector):
+    """variance=sum of the squares of each component of the deviation mean vector, divided by n-1 (n=size of the vector)"""
+    if len(vector) <= 1:
+        return 0
+    return sum_of_squares(de_mean(vector)) / (len(vector) - 1)
+
+
+def standard_deviation(vector):
+    return math.sqrt(variance(vector))

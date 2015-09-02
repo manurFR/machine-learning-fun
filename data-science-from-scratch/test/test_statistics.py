@@ -1,4 +1,5 @@
 from unittest import TestCase
+import math
 import statistics
 
 
@@ -28,3 +29,23 @@ class TestStatistics(TestCase):
         self.assertEqual([1, 6], statistics.mode([3, 6, 1, 6, 2, 9, 10, 1, 6, 7, 54, 1, 0]))
         self.assertEqual([], statistics.mode([]))
         self.assertEqual([1, 2, 3], statistics.mode([3, 2, 1]))
+
+    def test_data_range(self):
+        self.assertEqual(12, statistics.data_range([9, 6, 3, 8, 15, 6]))
+        self.assertEqual(0, statistics.data_range([6]))
+        self.assertEqual(0, statistics.data_range([]))
+
+    def test_de_mean(self):
+        self.assertEqual([-3, -2, -1, 0, 0, 6], statistics.de_mean([1, 2, 3, 4, 4, 10])) # mean is 4
+        self.assertEqual([0], statistics.de_mean([1]))
+        self.assertEqual([], statistics.de_mean([]))
+
+    def test_variance(self):
+        self.assertEqual(((-3*-3)+(-2*-2)+(-1*-1)+(6*6))/5, statistics.variance([1, 2, 3, 4, 4, 10]))
+        self.assertEqual(0, statistics.variance([1]))
+        self.assertEqual(0, statistics.variance([]))
+
+    def test_standard_deviation(self):
+        self.assertEqual(math.sqrt(10), statistics.standard_deviation([1, 2, 3, 4, 4, 10]))
+        self.assertEqual(0, statistics.standard_deviation([1]))
+        self.assertEqual(0, statistics.standard_deviation([]))
