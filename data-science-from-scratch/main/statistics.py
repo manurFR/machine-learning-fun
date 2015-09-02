@@ -1,7 +1,7 @@
 from __future__ import division
 from collections import Counter
 import math
-from linalg import sum_of_squares
+from linalg import sum_of_squares, dot
 
 
 def mean(vector):
@@ -59,3 +59,22 @@ def variance(vector):
 
 def standard_deviation(vector):
     return math.sqrt(variance(vector))
+
+
+def interquartile_range(vector):
+    return quantile(vector, 0.75) - quantile(vector, 0.25)
+
+
+def covariance(vector1, vector2):
+    if len(vector1) <= 1:
+        return 0
+    return dot(de_mean(vector1), de_mean(vector2)) / (len(vector1) - 1)
+
+
+def correlation(vector1, vector2):
+    stddev1 = standard_deviation(vector1)
+    stddev2 = standard_deviation(vector2)
+    if stddev1 == 0 or stddev2 == 0:
+        return 0
+    return covariance(vector1, vector2) / stddev1 / stddev2
+
