@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import division
+from collections import Counter
 import random
 import matplotlib.pyplot as plt
 import math
@@ -83,4 +84,24 @@ if __name__ == '__main__':
     plt.plot(xs, [normal_cdf(x, mu=-1, sigma=1.5) for x in xs], ':', label='mu=-1,sigma=1.5')
     plt.legend(loc=4)
     plt.title("Normal cumulative density functions")
+    plt.show()
+
+    # Histogram to compare Binomial and Normal
+    n, p, num_points = 100, 0.75, 10000
+
+    data = [binomial(n, p) for _ in range(num_points)]
+
+    histogram = Counter(data)
+    plt.bar([x - 0.4 for x in histogram.keys()],            # bar chart for binomial
+            [v / num_points for v in histogram.values()],
+            0.8,
+            color='0.75')
+
+    mu_approx = p * n
+    sigma_approx = math.sqrt(n * p * (1 - p))
+
+    xs = range(min(data), max(data) + 1)
+    ys = [normal_cdf(i + 0.5, mu_approx, sigma_approx)- normal_cdf(i - 0.5, mu_approx, sigma_approx) for i in xs]
+    plt.plot(xs, ys)                                        # line chart for normal approximation
+    plt.title("Binomial vs. Normal approx.")
     plt.show()
