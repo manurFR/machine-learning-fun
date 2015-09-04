@@ -64,6 +64,33 @@ print "range of how many heads around the mean we can expect to get with a 67% p
 
 print
 # notre hypothèse null sera statistiquement significative (significance) si la probabilité de rejeter l'hypothèse alors
-#  qu'elle est juste est inférieure à 5%
+#  qu'elle est juste est inférieure à 5% (convention)
 print "intervalle du nb de face que l'on s'attend à avoir avec une probabilité de 95% :", map(int, normal_two_sided_bounds(0.95, mu, sigma))
 print "=> si notre observation est dans cet intervalle 95% du temps, c'est que notre hypothèse de départ (p=0.5) est juste"
+
+# La puissance statistique d'un test est la probabilité de rejeter l'hypothèse null lorsque l'hypothèse alternative est vraie.
+# power = P(reject Ho|H1 is true) = 1 - P(Ho is not rejected|H1 true)
+# L'hypothèse null Ho est que p = 0.5.
+# Une hypothèse alternative H1 peut être que p = 0.55 (pièce légèrement biaisée vers le côté face).
+
+# On construit la distribution dans l'hypothèse où H1 serait vrai :
+mu_h1, sigma_h1 = normal_approximation_of_binomial(1000, 0.55)
+# Pour que Ho ne soit pas rejetée dans ce cas, il faut que le nb de tirages positifs respecte l'intervalle de
+# significativité statistique à 95% de celle ci :
+lo_h0, hi_h0 = normal_two_sided_bounds(0.95, mu, sigma)
+# La probabilité P(Ho is not rejected|H1 true) est donc la probabilité que les tirages avec les paramètres de H1
+# rentrent dans les bornes de significativité de Ho :
+proba_h0_rejected_given_h1 = normal_probability_between(lo_h0, hi_h0, mu_h1, sigma_h1)
+print "puissance de l'hypothèse H1(p=0.55) contre l'hypothèse null Ho(p=0.50) avec n=1000: ", 1 - proba_h0_rejected_given_h1
+print "=> c'est à dire la probabilité de bien rejeter Ho si H1 est vrai"
+
+print
+# autre Ho : la pièce n'est pas biaisée côté face : p <= 0.5
+# cette hypothèse est toujours statistiquement significative si P(reject Ho|Ho true) <= 5%, mais cette fois on l'exprime
+# en cherchant le seuil pour lequel on aura 95% d'avoir moins ou égal de tirages positifs :
+hi_h0 = normal_upper_bound(0.95, mu, sigma)
+print hi_h0
+# L'hypothèse concurrente H1 est que p > 0.5, sa puissance dépend de la probabilité P(Ho is not rejected|H1 true),
+# donc à nouveau que les tirages avec les paramètres de H1 rentrent dans les bornes de significativité de Ho :
+proba_h0_rejected_given_h1 = normal_probability_below(hi_h0, mu_h1, sigma_h1)
+print "puissance de l'hypothèse H1(p>0.5) contre l'hypothèse null Ho(p<=0.5) avec n=1000: ", 1 - proba_h0_rejected_given_h1
