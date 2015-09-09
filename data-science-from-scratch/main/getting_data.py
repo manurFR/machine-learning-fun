@@ -7,7 +7,7 @@ import re
 from time import sleep
 from bs4 import BeautifulSoup
 import requests
-from twython import Twython
+from twython import Twython, TwythonStreamer
 
 if __name__ == '__main__':
     def is_video(td):
@@ -28,42 +28,43 @@ if __name__ == '__main__':
     def get_year(book):
         return int(book['date'].split()[1])
 
-    # oreilly = "http://shop.oreilly.com/category/browse-subjects/data.do?sortby=publicationDate&page="
-    #
-    # soup = BeautifulSoup(requests.get(oreilly + '1').text, 'html5lib')
-    # pattern = r'Page 1 of (\d*)'
-    # page_option = soup.find('option', text=re.compile(pattern)).text.strip()
-    # num_pages = int(re.search(pattern, page_option).group(1))
-    # print num_pages, "pages to fetch"
-    #
-    # books = []
-    # for page_num in range(1, num_pages + 1):
-    #     print "Souping page", page_num, "-", len(books), "books found so far"
-    #     soup = BeautifulSoup(requests.get(oreilly + str(page_num)).text, 'html5lib')
-    #
-    #     for td in soup('td', 'thumbtext'):
-    #         if not is_video(td):
-    #             books.append(book_info(td))
-    #
-    #     sleep(30)
-    #
-    # print "Total books found:", len(books)
-    # pprint.pprint(books)
-    #
-    # year_counts = Counter(get_year(book) for book in books if get_year(book) <= 2014)
-    #
-    # import matplotlib.pyplot as plt
-    # years = sorted(year_counts)
-    # book_counts = [year_counts[year] for year in years]
-    # plt.plot(years, book_counts)
-    # plt.ylabel('Number of data books')
-    # plt.title('Data is big!')
-    # plt.show()
+    oreilly = "http://shop.oreilly.com/category/browse-subjects/data.do?sortby=publicationDate&page="
+
+    soup = BeautifulSoup(requests.get(oreilly + '1').text, 'html5lib')
+    pattern = r'Page 1 of (\d*)'
+    page_option = soup.find('option', text=re.compile(pattern)).text.strip()
+    num_pages = int(re.search(pattern, page_option).group(1))
+    print num_pages, "pages to fetch"
+
+    books = []
+    for page_num in range(1, num_pages + 1):
+        print "Souping page", page_num, "-", len(books), "books found so far"
+        soup = BeautifulSoup(requests.get(oreilly + str(page_num)).text, 'html5lib')
+
+        for td in soup('td', 'thumbtext'):
+            if not is_video(td):
+                books.append(book_info(td))
+
+        sleep(30)
+
+    print "Total books found:", len(books)
+    pprint.pprint(books)
+
+    year_counts = Counter(get_year(book) for book in books if get_year(book) <= 2014)
+
+    import matplotlib.pyplot as plt
+    years = sorted(year_counts)
+    book_counts = [year_counts[year] for year in years]
+    plt.plot(years, book_counts)
+    plt.ylabel('Number of data books')
+    plt.title('Data is big!')
+    plt.show()
 
     # Twitter
     with open('../../../twitter.json') as f:
         auth = json.load(f)
 
+    print "Recent data science tweets:"
     twitter = Twython(auth["consumer_key"], auth["consumer_secret"])
 
     for status in twitter.search(q='"data science"')["statuses"]:
@@ -71,3 +72,28 @@ if __name__ == '__main__':
         text = status["text"].encode('utf-8')
         print user, ':', text
         print
+
+    print "Streaming 1000 current tweets about 'data':"
+    tweets = []
+
+    class MyStreamer(TwythonStreamer):
+        def on_success(self, data):
+            if data['lang'] == 'en':
+                tweets.append(data)
+                print "received tweets #", len(tweets), ' '.join('#{0}'.format(tag['text']) for tag in data["entities"]["hashtags"] or '')
+
+            if len(tweets) >= 1000:
+                self.disconnect()
+
+        def on_error(self, status_code, data):
+            print status_code, data
+            self.disconnect()
+
+    stream = MyStreamer(auth["consumer_key"], auth["consumer_secret"],
+                        auth["access_token"], auth["access_secret"])
+
+    stream.statuses.filter(track='data')
+
+    print "Top 10 most common hashtags among them:"
+    top_hashtags = Counter(hashtag['text'].lower() for tweet in tweets for hashtag in tweet["entities"]["hashtags"])
+    print top_hashtags.most_common(10)
