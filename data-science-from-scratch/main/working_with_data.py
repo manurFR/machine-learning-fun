@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import division
 from collections import Counter
 import math
 import random
@@ -59,4 +60,37 @@ if __name__ == '__main__':
     plt.show()
 
     print correlation(xs, ys1), correlation(xs, ys2)
+
+    # scatterplot matrix
+    # prepare data
+    def make_row():
+        v0 = random_normal()
+        v1 = -5 * v0 + random_normal()  # negatively correlated to v0
+        v2 = v0 + v1 + 5 * random_normal()  # positively correlated to both v0 and v1
+        v3 = 6 if v2 > -2 else 0  # depends exclusively on v2
+        return [v0, v1, v2, v3]
+    data = [make_row() for _ in range(100)]
+
+    # plot it
+    _, num_columns = shape(data)
+    fig, ax = plt.subplots(num_columns, num_columns)
+
+    for i in range(num_columns):
+        for j in range(num_columns):
+            if i != j:
+                ax[i][j].scatter(get_column(data, j), get_column(data, i))
+            else:
+                ax[i][j].annotate("series " + str(i), (0.5, 0.5), xycoords='axes fraction', ha='center', va='center')
+
+            # hide axis labels except for left and bottom charts
+            if i < num_columns - 1:
+                ax[i][j].xaxis.set_visible(False)
+            if j > 0:
+                ax[i][j].yaxis.set_visible(False)
+
+    ax[-1][-1].set_xlim(ax[0][-1].get_xlim())
+    ax[0][0].set_ylim(ax[0][1].get_ylim())
+
+    plt.show()
+
 

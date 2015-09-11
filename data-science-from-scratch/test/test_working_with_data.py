@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from __future__ import division
 import unittest
 import math
 import working_with_data
@@ -21,10 +21,9 @@ class MyTestCase(unittest.TestCase):
                          working_with_data.columns_correlation([[3, 3, 2], [5, 4, 10]], 0, 2))
 
     def test_correlation_matrix(self):
-        correlation = 8 / math.sqrt(2) / math.sqrt(32)
-        # à vérifier
-        self.assertEqual([[correlation, correlation], [correlation, correlation]],
-                         working_with_data.correlation_matrix([[3, 2], [5, 10]]))
+        # correlation([3, 5, 1], [2, 10, 6]) = 0.5
+        self.assertEqual([[1, 0.5], [0.5, 1]],
+                         working_with_data.correlation_matrix([[3, 2], [5, 10], [1, 6]]))
 
 
 if __name__ == '__main__':
