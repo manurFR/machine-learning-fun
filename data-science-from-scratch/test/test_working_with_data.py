@@ -25,6 +25,33 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual([[1, 0.5], [0.5, 1]],
                          working_with_data.correlation_matrix([[3, 2], [5, 10], [1, 6]]))
 
+    def test_parse_row(self):
+        self.assertEqual(["1", 2, " 9 "], working_with_data.parse_row(["1", "2", 9], [None, int, lambda x: str(x).center(3)]))
+        self.assertEqual([], working_with_data.parse_row([], []))
+        self.assertEqual([2.5, None], working_with_data.parse_row(["2.5", "a"], [float, float]))
+
+    def test_parse_rows_with(self):
+        self.assertEqual([[1, 6], [3, 12]],
+            [row for row in working_with_data.parse_rows_with([["1", "2"], ["3", "4"]], [int, lambda x: int(x) * 3])])
+
+    def test_try_or_none(self):
+        self.assertEqual(3.33, working_with_data.try_or_none(float)("3.33"))
+        self.assertEqual(None, working_with_data.try_or_none(float)("abc"))
+
+    def test_picker(self):
+        self.assertEqual(175, working_with_data.picker("height")({"age": 26, "height": 175, "weight": 65}))
+
+    def test_pluck(self):
+        self.assertEqual([15, 53, 26], working_with_data.pluck(
+            "age", [{"age": 15, "height": 158}, {"age": 53, "height": 169}, {"age": 26, "height": 175}]))
+
+    def test_group_by(self):
+        p1, p2, p3 = {"age": 31, "height": 158}, {"age": 53, "height": 169}, {"age": 31, "height": 175}
+        self.assertEqual({31: [p1, p3], 53: [p2]},
+                         working_with_data.group_by(lambda r: r["age"], [p1, p2, p3]))
+
+        self.assertEqual({31: 175, 53: 169}, working_with_data.group_by(lambda r: r["age"], [p1, p2, p3],
+                                                                        lambda rows: max(r["height"] for r in rows)))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import division
-from collections import Counter
+from StringIO import StringIO
+from collections import Counter, defaultdict
+import csv
 import math
 import random
+import dateutil.parser
 import matplotlib.pyplot as plt
+import requests
 from linalg import get_column, shape, make_matrix
 from probability import inverse_normal_cdf
 from statistics import correlation
@@ -32,6 +36,59 @@ def columns_correlation(matrix, i, j):
 def correlation_matrix(matrix):
     _, num_columns = shape(matrix)
     return make_matrix(num_columns, num_columns, lambda i, j: columns_correlation(matrix, i, j))
+
+
+def parse_row(row, parsers):
+    return [try_or_none(parser)(value) if parser is not None else value for value, parser in zip(row, parsers)]
+
+
+def parse_rows_with(reader, parsers):
+    for row in reader:
+        yield parse_row(row, parsers)
+
+
+def try_or_none(func):
+    """wraps func to return None when it would raise an exception"""
+    # noinspection PyBroadException
+    def func_or_none(x):
+        try:
+            return func(x)
+        except:
+            return None
+    return func_or_none
+
+
+def try_parse_field(field_name, value, parser_dict):
+    parser = parser_dict.get(field_name)
+    if parser is not None:
+        return try_or_none(parser)(value)
+    else:
+        return value
+
+
+def parse_dict(input_dict, parser_dict):
+    return {field_name: try_parse_field(field_name, value, parser_dict) for field_name, value in input_dict.iteritems()}
+
+
+def picker(field_name):
+    """returns a function that picks a field out of a dict"""
+    return lambda d: d[field_name]
+
+
+def pluck(field_name, rows):
+    """from a list of dicts (rows), extract the value of a field name into a list"""
+    return map(picker(field_name), rows)
+
+
+def group_by(grouper_func, rows, value_transform=None):
+    grouped_dict = defaultdict(list)
+    for row in rows:
+        grouped_dict[grouper_func(row)].append(row)
+
+    if value_transform is None:
+        return grouped_dict
+    else:
+        return {key: value_transform(rows) for key, rows in grouped_dict.iteritems()}
 
 if __name__ == '__main__':
     def random_normal():
@@ -93,4 +150,14 @@ if __name__ == '__main__':
 
     plt.show()
 
+    # parsing data
+    data = []
 
+    stocks = "https://raw.githubusercontent.com/joelgrus/data-science-from-scratch/master/code/comma_delimited_stock_prices.csv"
+    reader = csv.reader(StringIO(requests.get(stocks).text))
+    for line in parse_rows_with(reader, [dateutil.parser.parse, None, float]):
+        data.append(line)
+
+    for row in data:
+        if any(x is None for x in row):
+            print row
