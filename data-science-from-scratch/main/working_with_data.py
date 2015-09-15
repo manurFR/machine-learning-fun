@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import requests
 from linalg import get_column, shape, make_matrix
 from probability import inverse_normal_cdf
-from statistics import correlation
+from statistics import correlation, mean, standard_deviation
 
 
 def bucketize(point, bucket_size):
@@ -89,6 +89,29 @@ def group_by(grouper_func, rows, value_transform=None):
         return grouped_dict
     else:
         return {key: value_transform(rows) for key, rows in grouped_dict.iteritems()}
+
+
+def scale(matrix):
+    """returns the means and standard deviations of each column"""
+    num_rows, num_columns = shape(matrix)
+    means = [mean(get_column(matrix, j)) for j in range(num_columns)]
+    stdevs = [standard_deviation(get_column(matrix, j)) for j in range(num_columns)]
+    return means, stdevs
+
+
+def rescale(matrix):
+    """rescale the matrix so that each column has mean 0 and standard deviation 1"""
+    means, stdevs = scale(matrix)
+
+    def rescaled(i, j):
+        if stdevs[j] > 0:
+            return (matrix[i][j] - means[j]) / stdevs[j]
+        else:
+            return matrix[i][j]
+
+    num_rows, num_columns = shape(matrix)
+    return make_matrix(num_rows, num_columns, rescaled)
+
 
 if __name__ == '__main__':
     # def random_normal():
@@ -198,3 +221,12 @@ if __name__ == '__main__':
 
     overall_change_by_month = group_by(lambda row: row['date'].month, all_changes, overall_changes)
     print overall_change_by_month
+
+    # rescaling
+    data = [[1, 20, 2],
+            [1, 30, 3],
+            [1, 40, 4]]
+
+    print "original: ", data
+    print "scale: ", scale(data)
+    print "rescaled: ", rescale(data)

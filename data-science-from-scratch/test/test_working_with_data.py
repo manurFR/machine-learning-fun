@@ -53,5 +53,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual({31: 175, 53: 169}, working_with_data.group_by(lambda r: r["age"], [p1, p2, p3],
                                                                         lambda rows: max(r["height"] for r in rows)))
 
+    def test_scale(self):
+        self.assertEqual(([1.5, 2], [math.sqrt(0.5), math.sqrt(18)]), working_with_data.scale([[1, 5], [2, -1]]))
+
+    def test_rescale(self):
+        self.assertEqual([[-0.5/math.sqrt(0.5), 3/math.sqrt(18)], [0.5/math.sqrt(0.5), -3/math.sqrt(18)]],
+                         working_with_data.rescale([[1, 5], [2, -1]]))
+        self.assertEqual([[3]], working_with_data.rescale([[3]]))
+
 if __name__ == '__main__':
     unittest.main()
