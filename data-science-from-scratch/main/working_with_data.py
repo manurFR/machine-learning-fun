@@ -9,7 +9,7 @@ import random
 import dateutil.parser
 import matplotlib.pyplot as plt
 import requests
-from linalg import get_column, shape, make_matrix
+from linalg import get_column, shape, make_matrix, magnitude, dot
 from probability import inverse_normal_cdf
 from statistics import correlation, mean, standard_deviation
 
@@ -111,6 +111,27 @@ def rescale(matrix):
 
     num_rows, num_columns = shape(matrix)
     return make_matrix(num_rows, num_columns, rescaled)
+
+
+def de_mean_matrix(matrix):
+    """make each column have mean 0 by centering each element to its former mean"""
+    nr, nc = shape(matrix)
+    means, _ = scale(matrix)
+    return make_matrix(nr, nc, lambda i, j: matrix[i][j] - means[j])
+
+
+def direction(vector):
+    """rescale the vector to have length (magnitude) 1"""
+    mag = magnitude(vector)
+    return [component / mag for component in vector]
+
+
+def directional_variance_row(row, vector):
+    """the variance of the row in the direction determined by the vector"""
+    return dot(row, direction(vector)) ** 2
+
+def directional_variance(matrix, vector):
+    return sum([directional_variance_row(row, vector) for row in matrix])
 
 
 if __name__ == '__main__':

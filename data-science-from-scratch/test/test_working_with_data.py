@@ -61,5 +61,17 @@ class MyTestCase(unittest.TestCase):
                          working_with_data.rescale([[1, 5], [2, -1]]))
         self.assertEqual([[3]], working_with_data.rescale([[3]]))
 
+    def test_de_mean_matrix(self):
+        self.assertEqual([[-0.5, 3], [0.5, -3]], working_with_data.de_mean_matrix([[1, 5], [2, -1]]))
+
+    def test_direction(self):
+        self.assertEqual([1/3, 2/3, -2/3], working_with_data.direction([1, 2, -2]))
+
+    def test_directional_variance_row(self):
+        self.assertEqual(25, working_with_data.directional_variance_row([3, 6, 15], [1, 2, -2]))
+
+    def test_directional_variance(self):
+        self.assertEqual(34, working_with_data.directional_variance([[3, 6, 15], [3, 3, 0]], [1, 2, -2]))
+
 if __name__ == '__main__':
     unittest.main()
