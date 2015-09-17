@@ -73,5 +73,15 @@ class MyTestCase(unittest.TestCase):
     def test_directional_variance(self):
         self.assertEqual(34, working_with_data.directional_variance([[3, 6, 15], [3, 3, 0]], [1, 2, -2]))
 
+    def test_directional_variance_gradient_row(self):
+        self.assertEqual([-30, -60, -150], working_with_data.directional_variance_gradient_row([3, 6, 15], [1, 2, -2]))
+        self.assertEqual([18, 18, 0], working_with_data.directional_variance_gradient_row([3, 3, 0], [1, 2, -2]))
+
+    def test_direction_variance_gradient(self):
+        self.assertEqual([18-30, 18-60, -150], working_with_data.directional_variance_gradient([[3, 6, 15], [3, 3, 0]], [1, 2, -2]))
+
+    def test_first_principal_component(self):
+        self.assertEqual([math.sqrt(2) / 2, math.sqrt(2) / 2], working_with_data.first_principal_component([[1, 1], [3, 3]]))
+
 if __name__ == '__main__':
     unittest.main()
