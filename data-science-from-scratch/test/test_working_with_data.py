@@ -83,5 +83,8 @@ class MyTestCase(unittest.TestCase):
     def test_first_principal_component(self):
         self.assertEqual([math.sqrt(2) / 2, math.sqrt(2) / 2], working_with_data.first_principal_component([[1, 1], [3, 3]]))
 
+    def test_project(self):
+        self.assertEqual([28, 42], working_with_data.project([1, 4], [2, 3]))
+
 if __name__ == '__main__':
     unittest.main()
