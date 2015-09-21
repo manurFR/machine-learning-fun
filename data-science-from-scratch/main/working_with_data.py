@@ -208,7 +208,7 @@ if __name__ == '__main__':
 
     plot_histogram(uniform, 10, "Uniform histogram")
     plot_histogram(normal, 10, "Normal histogram")
-    
+
     # two dimensions
     xs = [random_normal() for _ in range(1000)]
     ys1 = [x + random_normal() / 2 for x in xs]
