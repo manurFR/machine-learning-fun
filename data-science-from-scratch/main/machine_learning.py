@@ -34,5 +34,4 @@ def recall(true_positive, _, false_negative, __):
 def f1_score(true_positive, false_positive, false_negative, true_negative):
     p = precision(true_positive, false_positive, false_negative, true_negative)
     r = recall(true_positive, false_positive, false_negative, true_negative)
-    print 2 * p * r, 16/15
     return 2 * p * r / (p + r)
