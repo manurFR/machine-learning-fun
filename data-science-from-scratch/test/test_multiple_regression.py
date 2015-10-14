@@ -23,6 +23,9 @@ class TestMultipleRegression(unittest.TestCase):
         with mock.patch.object(random, 'choice', side_effect=[4, 3, 3, 2, 4, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]):
             self.assertEqual([16, 10, 15], multiple_regression.bootstrap_statistic([2, 3, 4, 3, 2], sum, 3))
 
+    def test_ridge_penalty(self):
+        self.assertEqual(3 * (2 * 2 + 3 * 3 + 4 * 4), multiple_regression.ridge_penalty([1, 2, 3, 4], 3))
+
 
 if __name__ == '__main__':
     unittest.main()

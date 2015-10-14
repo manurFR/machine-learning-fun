@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import division
+from functools import partial
 import random
 from gradient_descent import minimize_stochastic
-from linalg import dot
+from linalg import dot, vector_add
 from simple_linear_regression import total_sum_of_squares
-from statistics import median
+from statistics import median, standard_deviation
 
 
 def predict(x_i, beta):
@@ -34,7 +35,7 @@ def estimate_beta(x, y):
 
 
 def multiple_r_squared(x, y, beta):
-    sum_squared_errors = sum(error(x_i, y_i, beta) ** 2 for x_i, y_i in zip(x, y))
+    sum_squared_errors = sum(squared_error(x_i, y_i, beta) for x_i, y_i in zip(x, y))
     return 1.0 - sum_squared_errors / total_sum_of_squares(y)
 
 
@@ -47,7 +48,49 @@ def bootstrap_statistic(data, func, num_samples):
     return [func(bootstrap_sample(data)) for _ in range(num_samples)]
 
 
+def estimate_sample_beta(sample):
+    """sample is a list of pairs (x_i, y_i)"""
+    x_sample, y_sample = zip(*sample) # magic unzipping trick
+    return estimate_beta(x_sample, y_sample)
+
+
+def ridge_penalty(beta, alpha):
+    """alpha is the penalty strength hyperparameter (often called lambda but in python it's a reserved word)"""
+    return alpha * dot(beta[1:], beta[1:])
+
+
+def squared_error_ridge(x_i, y_i, beta, alpha):
+    """add ridge penalty to the squared error"""
+    return error(x_i, y_i, beta) ** 2 + ridge_penalty(beta, alpha)
+
+
+def ridge_penalty_gradient(beta, alpha):
+    return [0] + [2 * alpha * beta_j for beta_j in beta[1:]]
+
+
+def squared_error_ridge_gradient(x_i, y_i, beta, alpha):
+    """the gradient corresponding to the ith squared error term, including the ridge penalty"""
+    return vector_add(squared_error_gradient(x_i, y_i, beta),
+                      ridge_penalty_gradient(beta, alpha))
+
+
+def estimate_beta_ridge(x, y, alpha):
+    beta_initial = [random.random() for x_i in x[0]]
+    return minimize_stochastic(partial(squared_error_ridge, alpha=alpha),
+                               partial(squared_error_ridge_gradient, alpha=alpha),
+                               x, y,
+                               beta_initial,
+                               0.001)
+
+
 if __name__ == "__main__":
+    def rounded(value):
+        try:
+            return [round(element, 2) for element in value]
+        except TypeError:
+            return round(value, 2)
+
+
     x = [[1, 49, 4, 0], [1, 41, 9, 0], [1, 40, 8, 0], [1, 25, 6, 0], [1, 21, 1, 0], [1, 21, 0, 0], [1, 19, 3, 0],
          [1, 19, 0, 0], [1, 18, 9, 0], [1, 18, 8, 0], [1, 16, 4, 0], [1, 15, 3, 0], [1, 15, 0, 0], [1, 15, 2, 0],
          [1, 15, 7, 0], [1, 14, 0, 0], [1, 14, 1, 0], [1, 13, 1, 0], [1, 13, 7, 0], [1, 13, 4, 0], [1, 13, 2, 0],
@@ -94,13 +137,29 @@ if __name__ == "__main__":
 
     random.seed(0)
     beta = estimate_beta(x, daily_minutes_good)  # [30.63, 0.972, -1.868, 0.911]
-    print "beta", beta
-    print "r-squared", multiple_r_squared(x, daily_minutes_good, beta)
+    print "beta", rounded(beta)
+    print "r-squared", rounded(multiple_r_squared(x, daily_minutes_good, beta))
 
     close_to_100 = [99.5 + random.random() for _ in range(101)]
     far_from_100 = ([99.5 + random.random()] +
                     [random.random() for _ in range(50)] +
                     [200 + random.random() for _ in range(50)])
 
-    print "close", [round(x, 2) for x in sorted(bootstrap_statistic(close_to_100, median, 100))]
-    print "far", [round(x, 2) for x in sorted(bootstrap_statistic(far_from_100, median, 100))]
+    print
+    print "medians for bootstrapped tight distribution", [round(val, 2) for val in sorted(bootstrap_statistic(close_to_100, median, 100))]
+    print "medians for bootstrapped extreme distribution", [round(val, 2) for val in sorted(bootstrap_statistic(far_from_100, median, 100))]
+
+    random.seed(0)
+    bootstrap_betas = bootstrap_statistic(zip(x, daily_minutes_good),
+                                          estimate_sample_beta,
+                                          100)
+    bootstrap_standard_errors = [standard_deviation([beta[i] for beta in bootstrap_betas]) for i in range(4)]
+
+    print
+    print bootstrap_standard_errors
+
+    print
+    random.seed(0)
+    for alpha in (0.0, 0.01, 0.1, 1, 10):
+        beta_0 = estimate_beta_ridge(x, daily_minutes_good, alpha=alpha)
+        print alpha, ' : ', rounded(beta_0), rounded(dot(beta_0[1:], beta_0[1:])), rounded(multiple_r_squared(x, daily_minutes_good, beta_0))
