@@ -3,7 +3,9 @@
 from __future__ import division
 import unittest
 import math
+
 import decision_trees
+
 
 input1 = ({'key1': 'a', 'key2': 'apple'}, True)
 input2 = ({'key1': 'b', 'key2': 'pear'}, True)
@@ -32,6 +34,38 @@ class TestDecisionTrees(unittest.TestCase):
 
     def test_partition_entropy_by(self):
         self.assertEqual(- math.log(0.5, 2) * 2/3, decision_trees.partition_entropy_by([input1, input2, input3], 'key2'))
+
+    def test_classify(self):
+        self.assertEqual(True, decision_trees.classify(True, {'input': 'test'}))
+        self.assertEqual(False, decision_trees.classify(False, {'input': 'test'}))
+        self.assertEqual(True, decision_trees.classify(('att', {'yes': True, 'no': False}), {'att': 'yes'}))
+        self.assertEqual(False, decision_trees.classify(('att', {'yes': True, None: False}), {'att': 'unknown'}))
+
+    def test_build_tree_id3_only_one_label(self):
+        self.assertEqual(False, decision_trees.build_tree_id3([({'test': 'stuff'}, False), ({'test': 'ba'}, False)]))
+        self.assertEqual(True, decision_trees.build_tree_id3([({'test': 'stuff'}, True), ({'test': 'ba'}, True)]))
+
+    def test_build_tree_id3_no_split_candidates_left(self):
+        self.assertEqual(True, decision_trees.build_tree_id3(
+            [({'test': 'stuff'}, True), ({'test': 'stuff'}, False), ({'test': 'stuff'}, True)], split_candidates=[]))
+        self.assertEqual(False, decision_trees.build_tree_id3(
+            [({'test': 'stuff'}, True), ({'test': 'stuff'}, False), ({'test': 'stuff'}, False)], split_candidates=[]))
+        self.assertEqual(True, decision_trees.build_tree_id3(
+            [({'test': 'stuff'}, True), ({'test': 'stuff'}, False)], split_candidates=[]))
+
+    def test_build_tree_id3_real_tree(self):
+        self.assertEqual(('difficulty', {'easy': True,
+                                         'hard': False,
+                                         'medium': ('level', {'1': True, '2': False, None: False}),
+                                         None: False}),
+                         decision_trees.build_tree_id3([
+                             ({'level': '1', 'difficulty': 'easy'}, True),
+                             ({'level': '1', 'difficulty': 'medium'}, True),
+                             ({'level': '1', 'difficulty': 'hard'}, False),
+                             ({'level': '2', 'difficulty': 'easy'}, True),
+                             ({'level': '2', 'difficulty': 'medium'}, False),
+                             ({'level': '2', 'difficulty': 'hard'}, False)
+                         ]))
 
 
 if __name__ == '__main__':

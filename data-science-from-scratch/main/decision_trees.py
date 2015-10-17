@@ -3,7 +3,9 @@
 from __future__ import division
 from collections import Counter
 import collections
+from functools import partial
 import math
+import pprint
 
 
 def entropy(probabilities):
@@ -43,6 +45,55 @@ def partition_entropy_by(inputs, attribute):
     return partition_entropy(partitions.values())
 
 
+def classify(tree, input):
+    """in the tree, nodes are represented by a tuple (attribute, {'value1': subnode1, 'value2': subnode2, ...})
+       the subnodes can be other nodes of the same format, or leaves equal to either True of False
+       'value1', 'value2', etc. are the different values that the specified attribute can have"""
+    # leaf
+    if tree in [True, False]:
+        return tree
+
+    attribute, subtree = tree
+
+    key = input.get(attribute)  # None if input is missing attribute
+    if key not in subtree:
+        key = None
+
+    return classify(subtree[key], input)
+
+
+def build_tree_id3(inputs, split_candidates=None):
+    if split_candidates is None:  # at the first pass, take all attributes as possible split candidates
+        split_candidates = inputs[0][0].keys()
+
+    num_inputs = len(inputs)
+    num_true = len([label for item, label in inputs if label])
+    num_false = num_inputs - num_true
+
+    if num_true == 0:  # no Trues ? return a False leaf
+        return False
+    if num_false == 0:  # no Falses ? return a True leaf
+        return True
+
+    if not split_candidates:  # no split candidates left : take the label present the most time
+        return num_true >= num_false
+
+    # split on best attribute (lowest entropy)
+    best_attribute = min(split_candidates, key=partial(partition_entropy_by, inputs))
+
+    partitions = partition_by(inputs, best_attribute)
+    new_candidates = [c for c in split_candidates if c != best_attribute]
+
+    # build the subtrees (recursively)
+    subtrees = {attribute_value: build_tree_id3(subset, new_candidates)
+                for attribute_value, subset in partitions.iteritems()}
+
+    # default case
+    subtrees[None] = num_true > num_false
+
+    return best_attribute, subtrees
+
+
 if __name__ == '__main__':
     data = [
         ({'level': 'Senior', 'lang': 'Java', 'tweets': 'no', 'phd': 'no'}, False),
@@ -61,5 +112,18 @@ if __name__ == '__main__':
         ({'level': 'Junior', 'lang': 'Python', 'tweets': 'no', 'phd': 'yes'}, False)
     ]
 
-    for key in data[0][0].keys():
-        print key, partition_entropy_by(data, key)
+    for k in data[0][0].keys():
+        print k, partition_entropy_by(data, k)
+
+    tree = build_tree_id3(data)
+    pprint.pprint(tree)
+
+    def should_hire(classification):
+        return "HIRE!" if classification else "DON'T!"
+
+    print 'junior javaist without phd that tweets :', should_hire(classify(
+        tree, {'level': 'Junior', 'lang': 'Java', 'tweets': 'yes', 'phd': 'no'}))
+    print 'junior javaist with a phd that tweets :', should_hire(classify(
+        tree, {'level': 'Junior', 'lang': 'Java', 'tweets': 'yes', 'phd': 'yes'}))
+    print 'intern :', should_hire(classify(tree, {'level': 'Intern'}))
+    print 'senior without other values :', should_hire(classify(tree, {'level': 'Senior'}))
