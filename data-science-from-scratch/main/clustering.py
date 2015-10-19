@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import division
+import pprint
 import random
-from linalg import squared_distance, vector_mean
+from linalg import squared_distance, vector_mean, distance
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 
 class KMeans(object):
     def __init__(self, k):
@@ -47,6 +50,69 @@ def squared_clustering_errors(inputs, k):
 
     return sum(squared_distance(input, clusterer.means[cluster]) for input, cluster in zip(inputs, assignments))
 
+
+def is_leaf(cluster):
+    return len(cluster) == 1
+
+
+def get_children(cluster):
+    if is_leaf(cluster):
+        raise TypeError("a leaf cluster has no children")
+    else:
+        return cluster[1]
+
+
+def get_values(cluster):
+    if is_leaf(cluster):
+        return cluster
+    else:
+        return [value for child in get_children(cluster) for value in get_values(child)]
+
+
+def cluster_distance(cluster1, cluster2, distance_func=min):
+    return distance_func([distance(input1, input2) for input1 in get_values(cluster1) for input2 in get_values(cluster2)])
+
+
+def get_merge_order(cluster):
+    if is_leaf(cluster):
+        return float('inf')
+    else:
+        return cluster[0]
+
+
+def bottom_up_cluster(inputs, distance_func=min):
+    clusters = [(input,) for input in inputs]  # initially, each input is a (leaf) cluster
+
+    # as long as we have more than one cluster left
+    while len(clusters) > 1:
+        closest1, closest2 = min([(cluster1, cluster2) for i, cluster1 in enumerate(clusters) for cluster2 in clusters[:i]],
+                                 key=lambda (x, y): cluster_distance(x, y, distance_func))
+
+        # remove the two closest clusters from the list...
+        clusters = [c for c in clusters if c != closest1 and c != closest2]
+
+        # ...merge them...
+        merged_cluster = (len(clusters), [closest1, closest2])
+
+        # ...and add the merge
+        clusters.append(merged_cluster)
+
+    # return the final state
+    return clusters[0]
+
+
+def generate_clusters(base_cluster, num_clusters):
+    clusters = [base_cluster]
+
+    while len(clusters) < num_clusters:
+        next_cluster = min(clusters, key=get_merge_order)
+        clusters = [cluster for cluster in clusters if cluster != next_cluster]
+        clusters.extend(get_children(next_cluster))
+
+    return clusters
+
+
+
 if __name__ == '__main__':
     def rounded(value):
         try:
@@ -77,4 +143,44 @@ if __name__ == '__main__':
     plt.xlabel("k")
     plt.ylabel("total squared error")
     plt.title("Total Error vs. # of Clusters")
+    plt.show()
+
+    # clustering colors
+    if True:
+        fileimage = r'godhelpthegirl.jpg'
+        img = mpimg.imread(fileimage)
+        red, green, blue = img[0][0]  # top left pixel
+        print red, green, blue
+
+        pixels = [pixel for row in img for pixel in row]
+        print len(pixels), "pixels to analyse"
+        clusterer = KMeans(5)
+        clusterer.train(pixels)
+
+        def recolor(pixl):
+            index = clusterer.classify(pixl)
+            return clusterer.means[index]
+
+        new_img = [[recolor(pixel) for pixel in row] for row in img]
+        plt.imshow(new_img)
+        plt.axis('off')
+        plt.show()
+
+    # hierarchical clustering
+    base_cluster = bottom_up_cluster(locations, min)
+    pprint.pprint(base_cluster)
+
+    three_clusters = [get_values(cluster) for cluster in generate_clusters(base_cluster, 3)]
+
+    for i, cluster, marker, color in zip([1, 2, 3],
+                                         three_clusters,
+                                         ['D', 'o', '*'],
+                                         ['r', 'g', 'b']):
+        xs, ys = zip(*cluster)
+        plt.scatter(xs, ys, color=color, marker=marker)
+
+        x, y = vector_mean(cluster)
+        plt.plot(x, y, marker='$' + str(i) + '$', color='black')
+
+    plt.title("3 clusters")
     plt.show()
