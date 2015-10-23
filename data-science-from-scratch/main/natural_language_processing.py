@@ -37,6 +37,27 @@ def generate_gibberish_using_trigrams(trigrams, starts):
             return " ".join(result).replace(" .", ".")
 
 
+def is_terminal(token):
+    return token[0] != '_'
+
+
+def expand(grammar, tokens):
+    for i, token in enumerate(tokens):
+        if is_terminal(token):
+            continue
+
+        replacement = random.choice(grammar[token])
+
+        if is_terminal(replacement):
+            tokens[i] = replacement
+        else:
+            tokens = tokens[:i] + replacement.split() + tokens[(i+1):]
+
+        return expand(grammar, tokens)
+    return tokens
+
+
+
 if __name__ == '__main__':
     url = "http://radar.oreilly.com/2010/06/what-is-data-science.html"
     html = requests.get(url).text
