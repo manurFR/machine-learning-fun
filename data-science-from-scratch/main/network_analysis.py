@@ -1,5 +1,9 @@
 from __future__ import division
 from collections import deque
+from functools import partial
+import pprint
+import random
+from linalg import dot, get_row, get_column, shape, make_matrix, magnitude, scalar_multiply, distance
 
 
 def initialize_frontier(from_user):
@@ -56,6 +60,48 @@ def farness(user):
     return sum(len(paths[0]) for paths in user["shortest_paths"].values())
 
 
+def matrix_product_entry(A, B, i, j):
+    return dot(get_row(A, i), get_column(B, j))
+
+
+def matrix_product(A, B):
+    rows_A, cols_A = shape(A)
+    rows_B, cols_B = shape(B)
+    if cols_A != rows_B:
+        raise ArithmeticError("incompatible shapes")
+
+    return make_matrix(rows_A, cols_B, partial(matrix_product_entry, A, B))
+
+
+def vector_as_matrix(v):
+    """transform the vector (represented as a liste) to a n x 1 matrix"""
+    return [[elt] for elt in v]
+
+
+def vector_from_matrix(v_as_matrix):
+    return [row[0] for row in v_as_matrix]
+
+
+def matrix_operate(A, v):
+    """given A of shape n x k and v vector of length k, transform v to a vector of length n"""
+    v_as_matrix = vector_as_matrix(v)
+    product = matrix_product(A, v_as_matrix)
+    return vector_from_matrix(product)
+
+
+def find_eigenvector(A, tolerance=0.00001):
+    guess = [random.random() for _ in A]
+
+    while True:
+        result = matrix_operate(A, guess)
+        length = magnitude(result)
+        next_guess = scalar_multiply(1/length, result)  # rescale to a magnitude of 1
+
+        if distance(guess, next_guess) < tolerance:
+            return next_guess, length  # eigenvector, eigenvalue
+        guess = next_guess
+
+
 if __name__ == '__main__':
     users = [
         {"id": 0, "name": "Hero"},
@@ -108,3 +154,13 @@ if __name__ == '__main__':
     for user in users:
         print user["id"], ' : ', user["closeness_centrality"]
     print
+
+    # eigenvector centrality
+    def adjacency_fn(i, j):
+        return 1 if (i, j) in friendships or (j, i) in friendships else 0
+    adjacency_matrix = make_matrix(len(users), len(users), adjacency_fn)
+
+    eigenvector_centralities, _ = find_eigenvector(adjacency_matrix)
+
+    pprint.pprint(adjacency_matrix)
+    print eigenvector_centralities

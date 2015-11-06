@@ -38,5 +38,21 @@ class TestNetworkAnalysis(unittest.TestCase):
     def test_farness(self):
         self.assertEqual(5, network_analysis.farness({"shortest_paths": {0: [[]], 1: [[3, 2, 1]], 2: [[3, 2], [4, 2]]}}))
 
+    def test_matrix_product_entry(self):
+        self.assertEqual(3*-1+4*2, network_analysis.matrix_product_entry([[1, 2], [3, 4]], [[4, -1, 3], [2, 2, -2]], 1, 1))
+
+    def test_matrix_product(self):
+        self.assertEqual([[8, 3, -1], [20, 5, 1]],
+                         network_analysis.matrix_product([[1, 2], [3, 4]], [[4, -1, 3], [2, 2, -2]]))
+
+    def test_vector_as_matrix(self):
+        self.assertEqual([[1], [2], [3]], network_analysis.vector_as_matrix([1, 2, 3]))
+
+    def test_vector_from_matrix(self):
+        self.assertEqual([1, 2, 3], network_analysis.vector_from_matrix([[1], [2], [3]]))
+
+    def test_matrix_operate(self):
+        self.assertEqual([1, 7], network_analysis.matrix_operate([[1, 2, -1], [3, 4, -2]], [5, 1, 6]))
+
 if __name__ == '__main__':
     unittest.main()
