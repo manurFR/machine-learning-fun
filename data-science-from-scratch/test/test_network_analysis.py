@@ -1,7 +1,5 @@
+from __future__ import division
 import network_analysis
-
-__author__ = 'ebizieau'
-
 import unittest
 
 
@@ -53,6 +51,15 @@ class TestNetworkAnalysis(unittest.TestCase):
 
     def test_matrix_operate(self):
         self.assertEqual([1, 7], network_analysis.matrix_operate([[1, 2, -1], [3, 4, -2]], [5, 1, 6]))
+
+    def test_page_rank(self):
+        users = [{"id": 1, "endorses": [{"id": 2}]},
+                 {"id": 2, "endorses": [{"id": 1}, {"id": 4}]},
+                 {"id": 3, "endorses": [{"id": 1}]},
+                 {"id": 4, "endorses": []}]
+        self.assertEqual({1: 1.425/4, 2: 1/4, 3: 0.15/4, 4: 0.575/4},
+                         {key: round(value, 5) for key, value in
+                          network_analysis.page_rank(users, damping=0.85, num_iters=1).iteritems()})
 
 if __name__ == '__main__':
     unittest.main()
