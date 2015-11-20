@@ -21,6 +21,13 @@ def most_similar_users_to(user_similarities, user_id):
     return sorted(pairs, key=lambda (_, similarity): similarity, reverse=True)
 
 
+def most_similar_interests_to(interest_similarities, interest_id, unique_interests):
+    pairs = [(unique_interests[other_interest_id], similarity)
+             for other_interest_id, similarity in enumerate(interest_similarities[interest_id])
+             if interest_id != other_interest_id and similarity > 0]
+    return sorted(pairs, key=lambda (_, similarity): similarity, reverse=True)
+
+
 def user_based_suggestions(user_similarities, users_interests, user_id, include_current_interests=False):
     suggestions = defaultdict(float)
     for other_user_id, similarity in most_similar_users_to(user_similarities, user_id):
@@ -28,6 +35,21 @@ def user_based_suggestions(user_similarities, users_interests, user_id, include_
             suggestions[interest] += similarity
 
     suggestions = sorted(suggestions.items(), key=lambda (_, weight): weight, reverse=True)
+
+    if include_current_interests:
+        return suggestions
+    else:
+        return [(suggestion, weight) for suggestion, weight in suggestions if suggestion not in users_interests[user_id]]
+
+
+def item_based_suggestions(interest_similarities, users_interests, user_interest_matrix, unique_interests, user_id, include_current_interests=False):
+    suggestions = defaultdict(float)
+    for interest_id, is_interested in enumerate(user_interest_matrix[user_id]):
+        if is_interested == 1:
+            for interest, similarity in most_similar_interests_to(interest_similarities, interest_id, unique_interests):
+                suggestions[interest] += similarity
+
+    suggestions = sorted(suggestions.items(), key=lambda (_, similarity): similarity, reverse=True)
 
     if include_current_interests:
         return suggestions
@@ -64,3 +86,14 @@ if __name__ == '__main__':
     print most_similar_users_to(user_similarities, 0)
 
     print user_based_suggestions(user_similarities, users_interests, 0)
+
+    # item-based
+    print
+    interest_user_matrix = [[user_interest_vector[j] for user_interest_vector in user_interest_matrix]
+                            for j, _ in enumerate(unique_interests)]
+    interest_similarities = [[cosine_similarity(user_vector_i, user_vector_j) for user_vector_j
+                              in interest_user_matrix] for user_vector_i in interest_user_matrix]
+
+    print most_similar_interests_to(interest_similarities, 0, unique_interests)
+
+    print item_based_suggestions(interest_similarities, users_interests, user_interest_matrix, unique_interests, 0)
