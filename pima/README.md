@@ -326,6 +326,7 @@ Les paramètres déterminés pour le dataset étudiés sont les suivants :
 | Paramètres | 6 | 100 | 0.01 |
 
 On obtient les scores suivants :
+
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
 | Régression Logistique | 0.78646    | 0.62     |
@@ -340,6 +341,7 @@ On obtient les scores suivants :
 Soit une précision très satisfaisante et un score F1 similaire aux meilleurs algorithmes étudiés ici. Le dataset étudié ici reste assez simple (8 dimensions, une seule classification) et avec un nombre de données à prendre en compte restreint ; il ne fait pas de doute que la puissance de XGBoost ressort plus nettement sur des problèmes moins contraints.
 
 Le ratio d'importance des *feature* donne les valeurs suivantes :
+
 | pregnancies | glucose | blood pressure | skin    | insulin | bmi     | pedigree | age     |
 |-------------|---------|----------------|---------|---------|---------|----------|---------|
 | 0.05563     | 0.36301 | 0.02786        | 0.07133 | 0.04601 | 0.18266 | 0.10093  | 0.15257 |
