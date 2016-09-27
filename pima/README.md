@@ -311,8 +311,10 @@ Le nombre de grossesses n'est plus exclu de la prédiction, et intervient même 
 
 ###Modèle de Gradient Boosting "xgboost"
 Le principe du *boosting* a acquis une large popularité ces dernières années, avec notamment la librairie XGBoost qui a permis de remporter plusieurs compétitions majeures de machine learning en 2016.
-Le principe est de construire un ensemble d'arbres de décisions, commes les *Random Forests*, mais avec deux modifications d'importances : 1) les arbres sont très limités, typiquement 2 à 4 niveaux de profondeurs, ce qui permet de les mettre en place et de les évaluer très rapidement, et 2) l'ensemble est construit progressivement, un nouvel arbre à la fois, les paramètres du nouvel élément ajouté étant soigneusement choisis pour optimiser la fonction de coût globale.
-La simplicité des arbres entraîne leur désignation comme "*weak learners*" (chacun d'entre eux, seul, aurait une piètre performance, contrairement aux arbres des *Random Forests*). Cependant, ce type d'ensemble s'est révélé donner d'excellents résultats, en faisant au final des "*strong learners*", et ouvrant le champ à l'utilisation maintenant répandue de cette méthode pourtant pas spécialement intuitive.
+
+Le principe est de construire un ensemble d'arbres de décisions, comme les *Random Forests*, mais avec deux modifications d'importances : 1) les arbres sont limités, typiquement 2 à 6 niveaux de profondeurs, ce qui permet de les mettre en place et de les évaluer très rapidement, et 2) l'ensemble est construit progressivement, un nouvel arbre à la fois, les paramètres du nouvel élément ajouté étant soigneusement choisis pour optimiser la fonction de coût globale.
+
+La simplicité des arbres entraîne leur désignation comme "*weak learners*" (chacun d'entre eux, seul, aurait une piètre performance, contrairement aux arbres des *Random Forests*). Cependant, ce type d'ensemble s'est révélé donner d'excellents résultats, produisant au final des "*strong learners*", et ouvrant le champ à l'utilisation maintenant répandue de cette méthode pourtant pas spécialement intuitive.
 
 On explore en *grid search* les hyper-paramètres suivants :
 * La **profondeur maximale** des arbres ;
@@ -338,9 +340,9 @@ On obtient les scores suivants :
 | Random Forest         | 0.76042    | 0.57     |
 | XGBoost               | 0.77083    | **0.64** |
 
-Soit une précision très satisfaisante et un score F1 similaire aux meilleurs algorithmes étudiés ici. Le dataset étudié ici reste assez simple (8 dimensions, une seule classification) et avec un nombre de données à prendre en compte restreint ; il ne fait pas de doute que la puissance de XGBoost ressort plus nettement sur des problèmes moins contraints.
+Soit une précision satisfaisante et un score F1 similaire aux meilleurs algorithmes étudiés ici. Ce dataset reste assez simple (8 dimensions, une seule classification) et avec un nombre de données à prendre en compte restreint ; il ne fait pas de doute que la puissance de XGBoost ressorte plus nettement sur des problèmes moins contraints.
 
-Le ratio d'importance des *feature* donne les valeurs suivantes :
+Le ratio d'importance des *features* donne les valeurs suivantes :
 
 | pregnancies | glucose | blood pressure | skin    | insulin | bmi     | pedigree | age     |
 |-------------|---------|----------------|---------|---------|---------|----------|---------|
