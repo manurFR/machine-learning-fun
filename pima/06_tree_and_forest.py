@@ -16,10 +16,10 @@ cv = StratifiedKFold(train_target, n_folds=5)
 print "Grid Search for criterion, max_depth, min_samples_split and min_samples_leaf"
 
 tree = DecisionTreeClassifier(random_state=0)
-grid = [{'criterion': ['gini', 'entropy'], 
-		 'max_depth': [3, 5, 8, 10, None],
-		 'min_samples_split': [2, 5, 10, 20],
-		 'min_samples_leaf':  [1, 2, 5, 10, 20]}]
+grid = [{'criterion': ['gini', 'entropy'],
+         'max_depth': [3, 5, 8, 10, None],
+         'min_samples_split': [2, 5, 10, 20],
+         'min_samples_leaf': [1, 2, 5, 10, 20]}]
 gridsearch = grid_search.GridSearchCV(tree, grid, cv=cv, scoring='f1', verbose=1)
 
 gridsearch.fit(train, train_target)
@@ -50,7 +50,7 @@ print 'known:     ' + str(test_target[:30])
 print 'predicted: ' + str(predicted[:30])
 
 with open('decisiontree.dot', 'w') as f:
-	f = export_graphviz(model, out_file = f, feature_names = COLUMN_NAMES[:-1])
+    f = export_graphviz(model, out_file=f, feature_names=COLUMN_NAMES[:-1])
 
 print '\nGraphviz file exported'
 
@@ -59,11 +59,11 @@ print "\n## Random Forest ##\n"
 print "Grid Search for n_estimators, criterion, max_depth, min_samples_split and min_samples_leaf"
 
 forest = RandomForestClassifier(random_state=0)
-grid = [{'criterion': ['gini', 'entropy'], 
-		 'n_estimators': [5, 10, 15, 25],
-		 'max_depth': [3, 5, 10, None],
-		 'min_samples_split': [2, 5, 10],
-		 'min_samples_leaf':  [1, 2, 5, 10, 20]}]
+grid = [{'criterion': ['gini', 'entropy'],
+         'n_estimators': [5, 10, 15, 25],
+         'max_depth': [3, 5, 10, None],
+         'min_samples_split': [2, 5, 10],
+         'min_samples_leaf': [1, 2, 5, 10, 20]}]
 gridsearch = grid_search.GridSearchCV(forest, grid, cv=cv, scoring='f1', verbose=1, n_jobs=4)
 
 gridsearch.fit(train, train_target)

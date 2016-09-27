@@ -144,8 +144,8 @@ En choisissant un seuil de 0.45 sur le même modèle (inutile de recommencer l'a
 
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
-| Régression Logistique | 0.78646    | 0.62     |
-| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Régression Logistique | **0.78646** | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
 
 ### Perceptron
 Le perceptron est un modèle linéaire comme la régression logistique, qui affecte des poids à chaque *feature* et produit une prédiction en convertissant le résultat (entier) en une valeur binaire.
@@ -166,8 +166,8 @@ Sur le jeu de test, on obtient les scores :
 
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
-| Régression Logistique | 0.78646    | 0.62     |
-| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Régression Logistique | **0.78646** | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
 | Perceptron            | 0.72917    | 0.54     |
 
 Les scores étant sensiblement plus faibles que la régression logistique, on ne poursuit pas l'étude avec cet algorithme.
@@ -195,8 +195,8 @@ Sur le jeu de test, on obtient les scores :
 
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
-| Régression Logistique | 0.78646    | 0.62     |
-| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Régression Logistique | **0.78646** | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
 | Perceptron            | 0.72917    | 0.54     |
 | K-Nearest Neighbors   | 0.77083    | 0.60     |
 
@@ -224,7 +224,7 @@ Sur le jeu de test, on obtient les scores :
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
 | Régression Logistique | 0.78646    | 0.62     |
-| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
 | Perceptron            | 0.72917    | 0.54     |
 | K-Nearest Neighbors   | 0.77083    | 0.60     |
 | Linear S.V.M.         | **0.79167** | **0.64** |
@@ -254,7 +254,7 @@ Sur le jeu de test, on obtient les scores :
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
 | Régression Logistique | 0.78646    | 0.62     |
-| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
 | Perceptron            | 0.72917    | 0.54     |
 | K-Nearest Neighbors   | 0.77083    | 0.60     |
 | Linear S.V.M.         | **0.79167** | **0.64** |
@@ -291,7 +291,7 @@ Sur le jeu de test, on obtient les scores :
 | &nbsp;                | *Accuracy* | Score F1 |
 |-----------------------|------------|----------|
 | Régression Logistique | 0.78646    | 0.62     |
-| Rég. Logistique seuil=0.45 | 0.78125 | 0.64   |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
 | Perceptron            | 0.72917    | 0.54     |
 | K-Nearest Neighbors   | 0.77083    | 0.60     |
 | Linear S.V.M.         | **0.79167** | **0.64** |
@@ -309,4 +309,40 @@ Le ratio d'importance des *feature* donne les valeurs suivantes :
 L'ordre d'importance reste identique à la section précédente : le taux de glucose emporte la majorité de la décision, suivie de l'indice de masse corporelle et de l'âge. La fonction de pedigree diabétique prend plus d'imporance.
 Le nombre de grossesses n'est plus exclu de la prédiction, et intervient même avec plus d'importance que la pression artérielle et le taux d'insuline lors du test.
 
+###Modèle de Gradient Boosting "xgboost"
+Le principe du *boosting* a acquis une large popularité ces dernières années, avec notamment la librairie XGBoost qui a permis de remporter plusieurs compétitions majeures de machine learning en 2016.
+Le principe est de construire un ensemble d'arbres de décisions, commes les *Random Forests*, mais avec deux modifications d'importances : 1) les arbres sont très limités, typiquement 2 à 4 niveaux de profondeurs, ce qui permet de les mettre en place et de les évaluer très rapidement, et 2) l'ensemble est construit progressivement, un nouvel arbre à la fois, les paramètres du nouvel élément ajouté étant soigneusement choisis pour optimiser la fonction de coût globale.
+La simplicité des arbres entraîne leur désignation comme "*weak learners*" (chacun d'entre eux, seul, aurait une piètre performance, contrairement aux arbres des *Random Forests*). Cependant, ce type d'ensemble s'est révélé donner d'excellents résultats, en faisant au final des "*strong learners*", et ouvrant le champ à l'utilisation maintenant répandue de cette méthode pourtant pas spécialement intuitive.
+
+On explore en *grid search* les hyper-paramètres suivants :
+* La **profondeur maximale** des arbres ;
+* Le **nombre d'arbres** au total ;
+* Le **taux d'apprentissage** appliqué à la fonction de régularisation.
+
+Les paramètres déterminés pour le dataset étudiés sont les suivants :
+
+| &nbsp; | **profondeur max.** | **nombre d'arbres** | **taux d'apprentissage** |
+|------------|----|-----------|-----------------|---|---|
+| Paramètres | 6 | 100 | 0.01 |
+
+On obtient les scores suivants :
+| &nbsp;                | *Accuracy* | Score F1 |
+|-----------------------|------------|----------|
+| Régression Logistique | 0.78646    | 0.62     |
+| Rég. Logistique seuil=0.45 | 0.78125 | **0.64** |
+| Perceptron            | 0.72917    | 0.54     |
+| K-Nearest Neighbors   | 0.77083    | 0.60     |
+| Linear S.V.M.         | **0.79167** | **0.64** |
+| Arbre de décision     | 0.77604    | 0.63     |
+| Random Forest         | 0.76042    | 0.57     |
+| XGBoost               | 0.77083    | **0.64** |
+
+Soit une précision très satisfaisante et un score F1 similaire aux meilleurs algorithmes étudiés ici. Le dataset étudié ici reste assez simple (8 dimensions, une seule classification) et avec un nombre de données à prendre en compte restreint ; il ne fait pas de doute que la puissance de XGBoost ressort plus nettement sur des problèmes moins contraints.
+
+Le ratio d'importance des *feature* donne les valeurs suivantes :
+| pregnancies | glucose | blood pressure | skin    | insulin | bmi     | pedigree | age     |
+|-------------|---------|----------------|---------|---------|---------|----------|---------|
+| 0.05563     | 0.36301 | 0.02786        | 0.07133 | 0.04601 | 0.18266 | 0.10093  | 0.15257 |
+
+On peut constater que cet algorithme donne un poids plus important que les autres au taux de glucose et beaucoup plus faible à la pression sanguine ; cela confirme que les différents algorithmes explorent des modèles divers et ne sont pas piégés dans un minimum global.
 > Written with [StackEdit](https://stackedit.io/).
