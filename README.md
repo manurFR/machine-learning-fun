@@ -7,3 +7,4 @@ Machine Learning Portfolio
 
 1. [Titanic](titanic/#readme)
 2. [Indiens Pima](pima/#readme)
+3. [Data Science from Scratch](data-science-from-scratch/) (code réalisé avec le livre *Data Science from Scratch* de Joel Grus, O'Reilly 2015)
